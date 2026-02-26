@@ -59,6 +59,11 @@
     public static <fields>;
 }
 
+# Google Play Core (referenced by Flutter engine for deferred components)
+-dontwarn com.google.android.play.core.splitcompat.**
+-dontwarn com.google.android.play.core.splitinstall.**
+-dontwarn com.google.android.play.core.tasks.**
+
 # Desugaring
 -dontwarn java.lang.invoke.**
 -dontwarn **$$Lambda$*
