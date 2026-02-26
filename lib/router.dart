@@ -52,10 +52,12 @@ GoRouter buildRouter({String initialLocation = '/'}) {
           final List<String> categories =
               extras['categories'] as List<String>? ?? const [];
           final String sound = extras['sound'] as String? ?? 'default';
+          final bool isTestMode = extras['isTestMode'] as bool? ?? false;
           return AlarmRingScreen(
             difficulty: difficulty,
             categories: categories,
             sound: sound,
+            isTestMode: isTestMode,
           );
         },
       ),

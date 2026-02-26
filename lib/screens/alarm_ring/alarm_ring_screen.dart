@@ -23,12 +23,14 @@ class AlarmRingScreen extends StatefulWidget {
   final Difficulty difficulty;
   final List<String> categories;
   final String sound;
+  final bool isTestMode;
 
   const AlarmRingScreen({
     super.key,
     required this.difficulty,
     this.categories = const [],
     this.sound = 'default',
+    this.isTestMode = false,
   });
 
   @override
@@ -67,7 +69,9 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     await _classifier.load();
     _pickPrompt();
     setState(() => _isLoading = false);
-    _audio.startAlarm(sound: widget.sound);
+    if (!widget.isTestMode) {
+      _audio.startAlarm(sound: widget.sound);
+    }
     _resetIdleTimer();
   }
 
@@ -144,11 +148,17 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       _isDismissed = true;
     });
     _audio.stopAlarm();
-    _recordDismissal();
+    if (!widget.isTestMode) {
+      _recordDismissal();
+    }
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        context.go('/');
+        if (widget.isTestMode) {
+          context.pop();
+        } else {
+          context.go('/');
+        }
       }
     });
   }
@@ -230,6 +240,12 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     }
   }
 
+  void _closeTest() {
+    _idleTimer?.cancel();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    context.pop();
+  }
+
   @override
   void dispose() {
     _idleTimer?.cancel();
@@ -253,7 +269,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     final bool canInteract = !_isDismissed && !_isClassifying;
 
     return PopScope(
-      canPop: false,
+      canPop: widget.isTestMode,
       child: Scaffold(
         backgroundColor: colors.surface,
         body: SafeArea(
@@ -320,11 +336,18 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    TextButton.icon(
-                      onPressed: canInteract ? _snooze : null,
-                      icon: const Icon(Icons.snooze, size: 18),
-                      label: const Text('Snooze (5 min)'),
-                    ),
+                    if (widget.isTestMode)
+                      TextButton.icon(
+                        onPressed: canInteract ? _closeTest : null,
+                        icon: const Icon(Icons.close, size: 18),
+                        label: const Text('Close Test'),
+                      )
+                    else
+                      TextButton.icon(
+                        onPressed: canInteract ? _snooze : null,
+                        icon: const Icon(Icons.snooze, size: 18),
+                        label: const Text('Snooze (5 min)'),
+                      ),
                     const SizedBox(height: 16),
                   ],
                 ),
