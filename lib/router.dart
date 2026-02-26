@@ -8,6 +8,7 @@ import 'screens/alarm_ring/alarm_ring_screen.dart';
 import 'screens/app_shell.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/practice/practice_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/stats/stats_screen.dart';
 
@@ -85,6 +86,15 @@ GoRouter buildRouter({String initialLocation = '/'}) {
                 path: '/',
                 builder: (BuildContext context, GoRouterState state) =>
                     const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/practice',
+                builder: (BuildContext context, GoRouterState state) =>
+                    const PracticeScreen(),
               ),
             ],
           ),

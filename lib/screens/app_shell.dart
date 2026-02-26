@@ -38,6 +38,11 @@ class AppShell extends StatelessWidget {
             label: 'Alarms',
           ),
           NavigationDestination(
+            icon: Icon(Icons.draw_outlined),
+            selectedIcon: Icon(Icons.draw),
+            label: 'Practice',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart),
             label: 'Stats',
