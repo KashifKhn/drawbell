@@ -1,0 +1,177 @@
+name: Build Release APK & AAB
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Build number override (leave empty to use pubspec.yaml)"
+        required: false
+        type: string
+      version_name:
+        description: "Version name override (leave empty to use pubspec.yaml)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  JAVA_VERSION: "17"
+  FLUTTER_CHANNEL: "stable"
+
+jobs:
+  build:
+    name: Build Production APK & AAB
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: "gradle"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Verify Flutter installation
+        run: |
+          flutter --version
+          flutter doctor -v
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run analysis
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version_name }}" ]; then
+            VERSION_NAME="${{ inputs.version_name }}"
+          else
+            VERSION_NAME=$(grep 'version:' pubspec.yaml | head -1 | sed 's/version: //' | sed 's/+.*//')
+          fi
+
+          if [ -n "${{ inputs.build_number }}" ]; then
+            BUILD_NUMBER="${{ inputs.build_number }}"
+          else
+            BUILD_NUMBER=$(grep 'version:' pubspec.yaml | head -1 | sed 's/.*+//')
+          fi
+
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Building v$VERSION_NAME+$BUILD_NUMBER"
+
+      - name: Build production APK
+        run: |
+          flutter build apk \
+            --release \
+            --obfuscate \
+            --split-debug-info=build/debug-info-apk \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ steps.version.outputs.build_number }} \
+            --target-platform android-arm,android-arm64,android-x64
+
+      - name: Build production AAB
+        run: |
+          flutter build appbundle \
+            --release \
+            --obfuscate \
+            --split-debug-info=build/debug-info-aab \
+            --build-name=${{ steps.version.outputs.version_name }} \
+            --build-number=${{ steps.version.outputs.build_number }}
+
+      - name: Rename artifacts
+        run: |
+          VERSION="v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.build_number }}"
+          mkdir -p build/release-artifacts
+
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            "build/release-artifacts/DrawBell-${VERSION}.apk"
+
+          cp build/app/outputs/bundle/release/app-release.aab \
+            "build/release-artifacts/DrawBell-${VERSION}.aab"
+
+      - name: Generate checksums
+        run: |
+          cd build/release-artifacts
+          sha256sum *.apk *.aab > checksums-sha256.txt
+          cat checksums-sha256.txt
+
+      - name: Package debug symbols
+        run: |
+          VERSION="v${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.build_number }}"
+          cd build
+          tar -czf "release-artifacts/DrawBell-${VERSION}-debug-symbols.tar.gz" \
+            debug-info-apk/ debug-info-aab/
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/release-artifacts/*.apk
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aab
+          path: build/release-artifacts/*.aab
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksums
+          path: build/release-artifacts/checksums-sha256.txt
+          retention-days: 90
+
+      - name: Upload debug symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-symbols
+          path: build/release-artifacts/*-debug-symbols.tar.gz
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "DrawBell ${{ steps.version.outputs.version_name }}"
+          generate_release_notes: true
+          files: |
+            build/release-artifacts/*.apk
+            build/release-artifacts/*.aab
+            build/release-artifacts/checksums-sha256.txt
+            build/release-artifacts/*-debug-symbols.tar.gz
