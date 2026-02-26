@@ -12,7 +12,6 @@ import '../../services/classifier_service.dart';
 import '../../theme.dart';
 import 'widgets/category_picker.dart';
 import 'widgets/day_selector.dart';
-import 'widgets/difficulty_selector.dart';
 import 'widgets/sound_picker.dart';
 
 class AlarmEditorScreen extends ConsumerStatefulWidget {
@@ -31,6 +30,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
   late TextEditingController _labelController;
   late List<String> _categories;
   late String _sound;
+  late bool _snooze;
   List<String> _allLabels = [];
 
   bool get _isEditing => widget.alarmId != null;
@@ -51,6 +51,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     _labelController = TextEditingController(text: existing?.label ?? '');
     _categories = List<String>.from(existing?.categories ?? []);
     _sound = existing?.sound ?? 'default';
+    _snooze = existing?.snooze ?? true;
     _loadLabels();
   }
 
@@ -98,6 +99,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
       label: _labelController.text.trim(),
       categories: _categories,
       sound: _sound,
+      snooze: _snooze,
     );
 
     if (_isEditing) {
@@ -114,6 +116,44 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     context.pop();
   }
 
+  Future<void> _deleteAlarm() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext ctx) => AlertDialog(
+        title: const Text('Delete Alarm'),
+        content: const Text('Are you sure you want to delete this alarm?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              'Delete',
+              style: TextStyle(color: Theme.of(ctx).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true && mounted) {
+      await ref.read(alarmListProvider.notifier).deleteAlarm(widget.alarmId!);
+      if (mounted) context.pop();
+    }
+  }
+
+  void _testChallenge() {
+    context.push(
+      '/alarm/ring',
+      extra: {
+        'difficulty': _difficulty,
+        'categories': _categories,
+        'sound': _sound,
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
@@ -121,7 +161,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Alarm' : 'Set New Alarm'),
+        title: Text(_isEditing ? 'Edit Alarm' : 'New Alarm'),
         leading: TextButton(
           onPressed: () => context.pop(),
           child: Text(
@@ -144,35 +184,32 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              children: [
-                _buildTimePicker(colors, textTheme),
-                const SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    _buildTimeUntilText(),
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildSettingsGroup(colors, textTheme),
-                const SizedBox(height: 16),
-                _buildSoundGroup(colors, textTheme),
-                const SizedBox(height: 16),
-                _buildDifficultySection(colors, textTheme),
-                const SizedBox(height: 16),
-                _buildCategoriesSection(colors, textTheme),
-                const SizedBox(height: 24),
-              ],
+          _buildTimePicker(colors, textTheme),
+          const SizedBox(height: 8),
+          Center(
+            child: Text(
+              formatTimeUntilAlarm(_time, _repeatDays),
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
             ),
           ),
-          _buildSaveButton(colors),
+          const SizedBox(height: 24),
+          _buildRepeatSection(colors, textTheme),
+          const SizedBox(height: 16),
+          _buildSettingsCard(colors, textTheme),
+          const SizedBox(height: 16),
+          _buildDismissalChallenge(colors, textTheme),
+          const SizedBox(height: 16),
+          _buildTestButton(),
+          if (_isEditing) ...[
+            const SizedBox(height: 16),
+            _buildDeleteButton(colors),
+          ],
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -228,40 +265,42 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     );
   }
 
-  String _buildTimeUntilText() {
-    return formatTimeUntilAlarm(_time, _repeatDays);
+  Widget _buildRepeatSection(ColorScheme colors, TextTheme textTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
+            'Repeat',
+            style: textTheme.titleSmall?.copyWith(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        DaySelector(
+          selectedDays: _repeatDays,
+          onChanged: (List<int> days) => setState(() => _repeatDays = days),
+        ),
+      ],
+    );
   }
 
-  Widget _buildSettingsGroup(ColorScheme colors, TextTheme textTheme) {
-    final String categoryLabel = _categories.isEmpty
-        ? 'Random'
-        : _categories.length == 1
-        ? _categories.first
-        : '${_categories.length} selected';
+  Widget _buildSettingsCard(ColorScheme colors, TextTheme textTheme) {
+    final String labelValue = _labelController.text.isEmpty
+        ? 'None'
+        : _labelController.text;
+    final String soundValue = AlarmSound.fromKey(_sound).label;
 
     return Card(
       child: Column(
         children: [
           _SettingsTile(
-            icon: Icons.calendar_today_outlined,
-            iconColor: AppTheme.brandOrange,
-            title: 'Repeat',
-            trailing: Text(
-              formatDays(_repeatDays),
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            showChevron: true,
-            onTap: () => _showDayPickerSheet(colors),
-          ),
-          Divider(height: 1, indent: 52, color: colors.outlineVariant),
-          _SettingsTile(
             icon: Icons.label_outline,
-            iconColor: AppTheme.brandOrange,
             title: 'Label',
             trailing: Text(
-              _labelController.text.isEmpty ? 'None' : _labelController.text,
+              labelValue,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
@@ -269,218 +308,289 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             showChevron: true,
-            onTap: () => _showLabelSheet(colors),
+            onTap: () => _showLabelSheet(),
           ),
-          Divider(height: 1, indent: 52, color: colors.outlineVariant),
-          _SettingsTile(
-            icon: Icons.category_outlined,
-            iconColor: AppTheme.brandOrange,
-            title: 'Categories',
-            trailing: Text(
-              categoryLabel,
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            showChevron: true,
-            onTap: _openCategoryPicker,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSoundGroup(ColorScheme colors, TextTheme textTheme) {
-    return Card(
-      child: Column(
-        children: [
+          Divider(height: 1, indent: 56, color: colors.outlineVariant),
           _SettingsTile(
             icon: Icons.music_note_outlined,
-            iconColor: AppTheme.brandOrange,
             title: 'Sound',
             trailing: Text(
-              AlarmSound.fromKey(_sound).label,
+              soundValue,
               style: textTheme.bodySmall?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
             ),
             showChevron: true,
-            onTap: () => _showSoundSheet(colors),
+            onTap: () => _showSoundSheet(),
+          ),
+          Divider(height: 1, indent: 56, color: colors.outlineVariant),
+          _SettingsTile(
+            icon: Icons.snooze_rounded,
+            title: 'Snooze',
+            trailing: IgnorePointer(
+              child: Switch(
+                value: _snooze,
+                onChanged: (_) {},
+                activeColor: AppTheme.brandOrange,
+              ),
+            ),
+            showChevron: false,
+            onTap: () => setState(() => _snooze = !_snooze),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDifficultySection(ColorScheme colors, TextTheme textTheme) {
+  Widget _buildDismissalChallenge(ColorScheme colors, TextTheme textTheme) {
+    final String categoryLabel = _categories.isEmpty
+        ? 'Random'
+        : _categories.length == 1
+        ? _categories.first
+        : '${_categories.length} categories';
+
+    final String strictnessLabel = switch (_difficulty) {
+      Difficulty.easy => 'LENIENT',
+      Difficulty.medium => 'MODERATE',
+      Difficulty.hard => 'HIGH PRECISION',
+    };
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Row(
             children: [
+              Icon(Icons.edit_outlined, size: 16, color: AppTheme.brandOrange),
+              const SizedBox(width: 8),
               Text(
-                'DRAWING DIFFICULTY',
-                style: textTheme.labelSmall?.copyWith(
-                  color: colors.onSurfaceVariant,
+                'Dismissal Challenge',
+                style: textTheme.titleSmall?.copyWith(
+                  color: colors.onSurface,
                   fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Complexity of the doodle required to dismiss.',
-                style: textTheme.bodySmall?.copyWith(
-                  color: colors.onSurfaceVariant.withAlpha(150),
-                  fontSize: 11,
                 ),
               ),
             ],
           ),
         ),
-        DifficultySelector(
-          selected: _difficulty,
-          onChanged: (Difficulty d) {
-            setState(() => _difficulty = d);
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCategoriesSection(ColorScheme colors, TextTheme textTheme) {
-    if (_categories.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(
-            'SELECTED CATEGORIES',
-            style: textTheme.labelSmall?.copyWith(
-              color: colors.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: _categories.take(10).map((String cat) {
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: AppTheme.brandOrange.withAlpha(25),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppTheme.brandOrange.withAlpha(60)),
-              ),
-              child: Text(
-                cat,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.brandOrange,
-                  fontWeight: FontWeight.w500,
+        Card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandOrange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.draw_outlined,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Draw Object',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: colors.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'You must draw this to stop the alarm',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton.icon(
+                      onPressed: _openCategoryPicker,
+                      icon: Icon(
+                        Icons.shuffle_rounded,
+                        size: 14,
+                        color: AppTheme.brandOrange,
+                      ),
+                      label: Text(
+                        categoryLabel,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.brandOrange,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        side: BorderSide(
+                          color: AppTheme.brandOrange.withAlpha(150),
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            );
-          }).toList(),
-        ),
-        if (_categories.length > 10)
-          Padding(
-            padding: const EdgeInsets.only(top: 4, left: 4),
-            child: Text(
-              '+${_categories.length - 10} more',
-              style: textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
+              Divider(height: 1, indent: 56, color: colors.outlineVariant),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                child: Row(
+                  children: [
+                    Text(
+                      'AI Strictness',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: colors.onSurface,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandOrange,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        strictnessLabel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: AppTheme.brandOrange,
+                  thumbColor: AppTheme.brandOrange,
+                  inactiveTrackColor: colors.outlineVariant,
+                  overlayColor: AppTheme.brandOrange.withAlpha(30),
+                ),
+                child: Slider(
+                  value: _difficulty.index.toDouble(),
+                  min: 0,
+                  max: 2,
+                  divisions: 2,
+                  onChanged: (double v) => setState(
+                    () => _difficulty = Difficulty.values[v.round()],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                child: Row(
+                  children: [
+                    Text(
+                      'Lenient',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'Moderate',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      'Strict',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Text(
+                  'Setting higher strictness requires a more accurate drawing for the AI to accept it.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
           ),
+        ),
       ],
     );
   }
 
-  Widget _buildSaveButton(ColorScheme colors) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: FilledButton.icon(
-            onPressed: _save,
-            icon: const Icon(Icons.check, size: 20),
-            label: const Text(
-              'Save Alarm',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.brandOrange,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
+  Widget _buildTestButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: _testChallenge,
+        icon: const Icon(Icons.draw_outlined, size: 18),
+        label: const Text(
+          'Test Drawing Challenge',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppTheme.brandOrange,
+          side: BorderSide(color: AppTheme.brandOrange.withAlpha(180)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),
     );
   }
 
-  void _showDayPickerSheet(ColorScheme colors) {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext sheetContext) {
-        return StatefulBuilder(
-          builder: (BuildContext ctx, StateSetter setSheetState) {
-            return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Repeat',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    DaySelector(
-                      selectedDays: _repeatDays,
-                      onChanged: (List<int> days) {
-                        setState(() => _repeatDays = days);
-                        setSheetState(() {});
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.brandOrange,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('Done'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+  Widget _buildDeleteButton(ColorScheme colors) {
+    return Center(
+      child: TextButton(
+        onPressed: _deleteAlarm,
+        child: Text(
+          'Delete Alarm',
+          style: TextStyle(
+            color: colors.error,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 
-  void _showLabelSheet(ColorScheme colors) {
+  void _showLabelSheet() {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -532,7 +642,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     );
   }
 
-  void _showSoundSheet(ColorScheme colors) {
+  void _showSoundSheet() {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext sheetContext) {
@@ -602,7 +712,6 @@ class _TimeBox extends StatelessWidget {
 
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
   final String title;
   final Widget trailing;
   final bool showChevron;
@@ -610,7 +719,6 @@ class _SettingsTile extends StatelessWidget {
 
   const _SettingsTile({
     required this.icon,
-    required this.iconColor,
     required this.title,
     required this.trailing,
     this.showChevron = false,
@@ -625,11 +733,19 @@ class _SettingsTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: iconColor),
-            const SizedBox(width: 16),
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppTheme.brandOrange,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 18, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,

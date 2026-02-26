@@ -11,6 +11,7 @@ class AlarmModel {
   final String label;
   final String sound;
   final List<String> categories;
+  final bool snooze;
 
   const AlarmModel({
     required this.id,
@@ -21,6 +22,7 @@ class AlarmModel {
     this.label = '',
     this.sound = 'default',
     this.categories = const [],
+    this.snooze = true,
   });
 
   AlarmModel copyWith({
@@ -32,6 +34,7 @@ class AlarmModel {
     String? label,
     String? sound,
     List<String>? categories,
+    bool? snooze,
   }) {
     return AlarmModel(
       id: id ?? this.id,
@@ -42,6 +45,7 @@ class AlarmModel {
       label: label ?? this.label,
       sound: sound ?? this.sound,
       categories: categories ?? this.categories,
+      snooze: snooze ?? this.snooze,
     );
   }
 
@@ -56,6 +60,7 @@ class AlarmModel {
       'label': label,
       'sound': sound,
       'categories': categories,
+      'snooze': snooze,
     };
   }
 
@@ -71,6 +76,7 @@ class AlarmModel {
       categories: json['categories'] != null
           ? List<String>.from(json['categories'] as List)
           : const [],
+      snooze: json['snooze'] as bool? ?? true,
     );
   }
 }
