@@ -5,17 +5,17 @@ import '../../../core/constants.dart';
 class DrawingCanvas extends StatelessWidget {
   final List<List<Offset>> strokes;
   final List<Offset> currentStroke;
-  final GestureDragStartCallback onPanStart;
-  final GestureDragUpdateCallback onPanUpdate;
-  final GestureDragEndCallback onPanEnd;
+  final GestureDragStartCallback? onPanStart;
+  final GestureDragUpdateCallback? onPanUpdate;
+  final GestureDragEndCallback? onPanEnd;
 
   const DrawingCanvas({
     super.key,
     required this.strokes,
     required this.currentStroke,
-    required this.onPanStart,
-    required this.onPanUpdate,
-    required this.onPanEnd,
+    this.onPanStart,
+    this.onPanUpdate,
+    this.onPanEnd,
   });
 
   @override

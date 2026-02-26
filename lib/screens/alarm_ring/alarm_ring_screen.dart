@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'widgets/attempt_counter.dart';
 import 'widgets/drawing_canvas.dart';
 import 'widgets/prompt_header.dart';
 import 'widgets/result_feedback.dart';
+import 'widgets/success_overlay.dart';
 
 class AlarmRingScreen extends StatefulWidget {
   final Difficulty difficulty;
@@ -38,6 +40,8 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   bool _isDismissed = false;
   double _currentThreshold = 0;
 
+  Timer? _idleTimer;
+
   @override
   void initState() {
     super.initState();
@@ -51,12 +55,30 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     _pickPrompt();
     setState(() => _isLoading = false);
     _audio.startAlarm();
+    _resetIdleTimer();
   }
 
   void _pickPrompt() {
     final List<String> labels = _classifier.labels;
     final String newPrompt = labels[Random().nextInt(labels.length)];
     setState(() => _prompt = newPrompt);
+  }
+
+  void _resetIdleTimer() {
+    _idleTimer?.cancel();
+    if (_isDismissed) return;
+    _idleTimer = Timer(idleTimeout, _onIdleTimeout);
+  }
+
+  void _onIdleTimeout() {
+    if (!mounted || _isDismissed) return;
+    setState(() {
+      _strokes.clear();
+      _currentStroke.clear();
+      _lastResult = null;
+    });
+    _pickPrompt();
+    _resetIdleTimer();
   }
 
   Future<void> _classify() async {
@@ -90,6 +112,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   }
 
   void _onSuccess() {
+    _idleTimer?.cancel();
     setState(() {
       _lastResult = true;
       _isDismissed = true;
@@ -130,6 +153,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         _strokes.removeLast();
         _lastResult = null;
       });
+      _resetIdleTimer();
     }
   }
 
@@ -139,10 +163,12 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       _currentStroke.clear();
       _lastResult = null;
     });
+    _resetIdleTimer();
   }
 
   @override
   void dispose() {
+    _idleTimer?.cancel();
     _audio.dispose();
     _classifier.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -160,60 +186,81 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       );
     }
 
+    final bool canInteract = !_isDismissed && !_isClassifying;
+
     return PopScope(
       canPop: false,
       child: Scaffold(
         backgroundColor: colors.surface,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(
-              children: [
-                PromptHeader(category: _prompt),
-                const SizedBox(height: 24),
-                DrawingCanvas(
-                  strokes: _strokes,
-                  currentStroke: _currentStroke,
-                  onPanStart: (DragStartDetails d) {
-                    setState(() => _currentStroke = [d.localPosition]);
-                  },
-                  onPanUpdate: (DragUpdateDetails d) {
-                    setState(() => _currentStroke.add(d.localPosition));
-                  },
-                  onPanEnd: (_) {
-                    if (_currentStroke.isNotEmpty) {
-                      setState(() {
-                        _strokes.add(List.from(_currentStroke));
-                        _currentStroke.clear();
-                      });
-                      _classify();
-                    }
-                  },
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 24,
                 ),
-                const SizedBox(height: 16),
-                ResultFeedback(isCorrect: _lastResult),
-                const SizedBox(height: 8),
-                AttemptCounter(attempts: _attempts),
-                const Spacer(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: _isDismissed ? null : _undo,
-                      icon: const Icon(Icons.undo, size: 18),
-                      label: const Text('Undo'),
+                    PromptHeader(category: _prompt),
+                    const SizedBox(height: 24),
+                    DrawingCanvas(
+                      strokes: _strokes,
+                      currentStroke: _currentStroke,
+                      onPanStart: canInteract
+                          ? (DragStartDetails d) {
+                              _resetIdleTimer();
+                              setState(
+                                () => _currentStroke = [d.localPosition],
+                              );
+                            }
+                          : null,
+                      onPanUpdate: canInteract
+                          ? (DragUpdateDetails d) {
+                              setState(
+                                () => _currentStroke.add(d.localPosition),
+                              );
+                            }
+                          : null,
+                      onPanEnd: canInteract
+                          ? (_) {
+                              if (_currentStroke.isNotEmpty) {
+                                setState(() {
+                                  _strokes.add(List.from(_currentStroke));
+                                  _currentStroke.clear();
+                                });
+                                _classify();
+                              }
+                            }
+                          : null,
                     ),
-                    const SizedBox(width: 16),
-                    OutlinedButton.icon(
-                      onPressed: _isDismissed ? null : _clear,
-                      icon: const Icon(Icons.delete_outline, size: 18),
-                      label: const Text('Clear'),
+                    const SizedBox(height: 16),
+                    ResultFeedback(isCorrect: _lastResult),
+                    const SizedBox(height: 8),
+                    AttemptCounter(attempts: _attempts),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: canInteract ? _undo : null,
+                          icon: const Icon(Icons.undo, size: 18),
+                          label: const Text('Undo'),
+                        ),
+                        const SizedBox(width: 16),
+                        OutlinedButton.icon(
+                          onPressed: canInteract ? _clear : null,
+                          icon: const Icon(Icons.delete_outline, size: 18),
+                          label: const Text('Clear'),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 16),
                   ],
                 ),
-                const SizedBox(height: 16),
-              ],
-            ),
+              ),
+              if (_isDismissed) const SuccessOverlay(),
+            ],
           ),
         ),
       ),
