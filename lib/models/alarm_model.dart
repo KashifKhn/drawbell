@@ -10,6 +10,7 @@ class AlarmModel {
   final bool isEnabled;
   final String label;
   final String sound;
+  final List<String> categories;
 
   const AlarmModel({
     required this.id,
@@ -19,6 +20,7 @@ class AlarmModel {
     this.isEnabled = true,
     this.label = '',
     this.sound = 'default',
+    this.categories = const [],
   });
 
   AlarmModel copyWith({
@@ -29,6 +31,7 @@ class AlarmModel {
     bool? isEnabled,
     String? label,
     String? sound,
+    List<String>? categories,
   }) {
     return AlarmModel(
       id: id ?? this.id,
@@ -38,6 +41,7 @@ class AlarmModel {
       isEnabled: isEnabled ?? this.isEnabled,
       label: label ?? this.label,
       sound: sound ?? this.sound,
+      categories: categories ?? this.categories,
     );
   }
 
@@ -51,6 +55,7 @@ class AlarmModel {
       'isEnabled': isEnabled,
       'label': label,
       'sound': sound,
+      'categories': categories,
     };
   }
 
@@ -63,6 +68,9 @@ class AlarmModel {
       isEnabled: json['isEnabled'] as bool,
       label: json['label'] as String,
       sound: json['sound'] as String,
+      categories: json['categories'] != null
+          ? List<String>.from(json['categories'] as List)
+          : const [],
     );
   }
 }

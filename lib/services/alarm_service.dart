@@ -19,6 +19,7 @@ class AlarmService {
     final String payload = jsonEncode({
       'alarmId': alarm.id,
       'difficulty': alarm.difficulty.index,
+      'categories': alarm.categories,
     });
 
     final String title = alarm.label.isNotEmpty ? alarm.label : 'DrawBell';

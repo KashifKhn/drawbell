@@ -8,6 +8,8 @@ import '../../core/constants.dart';
 import '../../core/utils.dart';
 import '../../models/alarm_model.dart';
 import '../../providers/alarm_provider.dart';
+import '../../services/classifier_service.dart';
+import 'widgets/category_picker.dart';
 import 'widgets/day_selector.dart';
 import 'widgets/difficulty_selector.dart';
 
@@ -25,6 +27,8 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
   late List<int> _repeatDays;
   late Difficulty _difficulty;
   late TextEditingController _labelController;
+  late List<String> _categories;
+  List<String> _allLabels = [];
 
   bool get _isEditing => widget.alarmId != null;
 
@@ -42,6 +46,13 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     _repeatDays = List<int>.from(existing?.repeatDays ?? []);
     _difficulty = existing?.difficulty ?? Difficulty.medium;
     _labelController = TextEditingController(text: existing?.label ?? '');
+    _categories = List<String>.from(existing?.categories ?? []);
+    _loadLabels();
+  }
+
+  Future<void> _loadLabels() async {
+    final List<String> labels = await ClassifierService.loadLabels();
+    if (mounted) setState(() => _allLabels = labels);
   }
 
   @override
@@ -60,6 +71,20 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     }
   }
 
+  Future<void> _openCategoryPicker() async {
+    if (_allLabels.isEmpty) return;
+    final List<String>? result = await Navigator.push<List<String>>(
+      context,
+      MaterialPageRoute<List<String>>(
+        builder: (_) =>
+            CategoryPicker(allCategories: _allLabels, selected: _categories),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() => _categories = result);
+    }
+  }
+
   void _save() {
     final AlarmModel alarm = AlarmModel(
       id: widget.alarmId ?? const Uuid().v4(),
@@ -67,6 +92,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
       repeatDays: _repeatDays,
       difficulty: _difficulty,
       label: _labelController.text.trim(),
+      categories: _categories,
     );
 
     if (_isEditing) {
@@ -156,6 +182,35 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
               hintText: 'e.g. Wake up for gym',
             ),
             textCapitalization: TextCapitalization.sentences,
+          ),
+          const SizedBox(height: 32),
+          Text(
+            'Drawing Categories',
+            style: textTheme.titleSmall?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.category_outlined, color: colors.primary),
+            title: Text(
+              _categories.isEmpty
+                  ? 'All categories (random)'
+                  : '${_categories.length} selected',
+            ),
+            subtitle: _categories.isEmpty
+                ? null
+                : Text(
+                    _categories.take(3).join(', ') +
+                        (_categories.length > 3
+                            ? ', +${_categories.length - 3} more'
+                            : ''),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _allLabels.isNotEmpty ? _openCategoryPicker : null,
           ),
         ],
       ),

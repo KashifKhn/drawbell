@@ -39,9 +39,16 @@ GoRouter buildRouter({String initialLocation = '/'}) {
       GoRoute(
         path: '/alarm/ring',
         builder: (BuildContext context, GoRouterState state) {
+          final Map<String, dynamic> extras =
+              state.extra as Map<String, dynamic>? ?? const {};
           final Difficulty difficulty =
-              state.extra as Difficulty? ?? Difficulty.medium;
-          return AlarmRingScreen(difficulty: difficulty);
+              extras['difficulty'] as Difficulty? ?? Difficulty.medium;
+          final List<String> categories =
+              extras['categories'] as List<String>? ?? const [];
+          return AlarmRingScreen(
+            difficulty: difficulty,
+            categories: categories,
+          );
         },
       ),
       GoRoute(

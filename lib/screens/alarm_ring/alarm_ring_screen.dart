@@ -21,8 +21,13 @@ import 'widgets/success_overlay.dart';
 
 class AlarmRingScreen extends StatefulWidget {
   final Difficulty difficulty;
+  final List<String> categories;
 
-  const AlarmRingScreen({super.key, required this.difficulty});
+  const AlarmRingScreen({
+    super.key,
+    required this.difficulty,
+    this.categories = const [],
+  });
 
   @override
   State<AlarmRingScreen> createState() => _AlarmRingScreenState();
@@ -62,8 +67,10 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   }
 
   void _pickPrompt() {
-    final List<String> labels = _classifier.labels;
-    final String newPrompt = labels[Random().nextInt(labels.length)];
+    final List<String> pool = widget.categories.isNotEmpty
+        ? widget.categories
+        : _classifier.labels;
+    final String newPrompt = pool[Random().nextInt(pool.length)];
     setState(() => _prompt = newPrompt);
   }
 

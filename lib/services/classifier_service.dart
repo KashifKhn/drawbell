@@ -17,6 +17,11 @@ class ClassifierService {
   bool get isLoaded => _isLoaded;
   List<String> get labels => List.unmodifiable(_labels);
 
+  static Future<List<String>> loadLabels() async {
+    final String raw = await rootBundle.loadString(labelsAssetPath);
+    return raw.trim().split('\n').map((String l) => l.trim()).toList();
+  }
+
   Future<void> load() async {
     _interpreter = await Interpreter.fromAsset(modelAssetPath);
     final String raw = await rootBundle.loadString(labelsAssetPath);

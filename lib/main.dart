@@ -48,9 +48,15 @@ void _handleNotificationPayload(String payload) {
         jsonDecode(payload) as Map<String, dynamic>;
     final int difficultyIndex = data['difficulty'] as int? ?? 1;
     final Difficulty difficulty = Difficulty.values[difficultyIndex];
-    _router.push('/alarm/ring', extra: difficulty);
+    final List<String> categories = data['categories'] != null
+        ? List<String>.from(data['categories'] as List)
+        : const [];
+    _router.push(
+      '/alarm/ring',
+      extra: {'difficulty': difficulty, 'categories': categories},
+    );
   } on FormatException {
-    _router.push('/alarm/ring', extra: Difficulty.medium);
+    _router.push('/alarm/ring', extra: {'difficulty': Difficulty.medium});
   }
 }
 

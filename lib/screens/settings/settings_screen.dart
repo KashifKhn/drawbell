@@ -77,7 +77,7 @@ class SettingsScreen extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.pop(sheetContext);
-                    context.push('/alarm/ring', extra: d);
+                    context.push('/alarm/ring', extra: {'difficulty': d});
                   },
                 ),
               ),
