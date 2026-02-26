@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/utils.dart';
 import '../../models/alarm_model.dart';
 import '../../providers/alarm_provider.dart';
 import 'widgets/alarm_card.dart';
@@ -38,6 +39,16 @@ class HomeScreen extends ConsumerWidget {
                   alarm: alarm,
                   onToggle: (_) {
                     ref.read(alarmListProvider.notifier).toggleAlarm(alarm.id);
+                    final bool willEnable = !alarm.isEnabled;
+                    final String message = willEnable
+                        ? formatTimeUntilAlarm(alarm.time, alarm.repeatDays)
+                        : 'Alarm off';
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
                   },
                   onTap: () => context.push('/alarm/${alarm.id}/edit'),
                   onDismissed: () {

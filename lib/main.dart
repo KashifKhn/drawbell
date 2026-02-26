@@ -23,6 +23,7 @@ Future<void> main() async {
       _handleNotificationPayload(payload);
     },
   );
+  await notifications.requestPermissions();
 
   runApp(
     ProviderScope(

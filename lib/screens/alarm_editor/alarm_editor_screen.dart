@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants.dart';
+import '../../core/utils.dart';
 import '../../models/alarm_model.dart';
 import '../../providers/alarm_provider.dart';
 import 'widgets/day_selector.dart';
@@ -73,6 +74,11 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     } else {
       ref.read(alarmListProvider.notifier).addAlarm(alarm);
     }
+
+    final String message = formatTimeUntilAlarm(_time, _repeatDays);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
 
     context.pop();
   }

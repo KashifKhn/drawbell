@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
+import '../services/alarm_service.dart';
+
 String formatTimeOfDay(TimeOfDay time) {
   final DateTime now = DateTime.now();
   final DateTime dateTime = DateTime(
@@ -36,4 +38,17 @@ String formatDays(List<int> days) {
   if (isWeekend) return 'Weekend';
 
   return days.map((int d) => weekdays[d]).join(', ');
+}
+
+String formatTimeUntilAlarm(TimeOfDay time, List<int> repeatDays) {
+  final DateTime nextFire = AlarmService.computeNextFireTime(time, repeatDays);
+  final Duration diff = nextFire.difference(DateTime.now());
+
+  final int hours = diff.inHours;
+  final int minutes = diff.inMinutes % 60;
+
+  if (hours == 0 && minutes == 0) return 'Alarm set for less than a minute';
+  if (hours == 0) return 'Alarm set for $minutes min from now';
+  if (minutes == 0) return 'Alarm set for $hours hr from now';
+  return 'Alarm set for $hours hr $minutes min from now';
 }

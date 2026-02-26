@@ -10,6 +10,7 @@ import '../../core/constants.dart';
 import '../../models/drawing_result.dart';
 import '../../services/audio_service.dart';
 import '../../services/classifier_service.dart';
+import '../../services/notification_service.dart';
 import 'widgets/attempt_counter.dart';
 import 'widgets/drawing_canvas.dart';
 import 'widgets/prompt_header.dart';
@@ -166,6 +167,28 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     _resetIdleTimer();
   }
 
+  Future<void> _snooze() async {
+    if (_isDismissed) return;
+    _idleTimer?.cancel();
+    _audio.stopAlarm();
+
+    final DateTime snoozeTime = DateTime.now().add(snoozeDuration);
+    final String payload = '{"difficulty":${widget.difficulty.index}}';
+
+    await NotificationService().scheduleAlarm(
+      id: snoozeTime.hashCode & 0x7FFFFFFF,
+      title: 'DrawBell',
+      body: 'Snoozed alarm — draw to dismiss!',
+      scheduledTime: snoozeTime,
+      payload: payload,
+    );
+
+    if (mounted) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      context.go('/');
+    }
+  }
+
   @override
   void dispose() {
     _idleTimer?.cancel();
@@ -254,6 +277,12 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
                           label: const Text('Clear'),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: canInteract ? _snooze : null,
+                      icon: const Icon(Icons.snooze, size: 18),
+                      label: const Text('Snooze (5 min)'),
                     ),
                     const SizedBox(height: 16),
                   ],
