@@ -49,6 +49,8 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   bool _isLoading = true;
   bool _isDismissed = false;
   double _currentThreshold = 0;
+  double _lastConfidence = 0.0;
+  late DateTime _startTime;
 
   Timer? _idleTimer;
 
@@ -56,6 +58,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   void initState() {
     super.initState();
     _currentThreshold = widget.difficulty.threshold;
+    _startTime = DateTime.now();
     _initAlarm();
   }
 
@@ -106,6 +109,17 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
 
       if (!mounted) return;
 
+      final DrawingResult? promptResult = results
+          .cast<DrawingResult?>()
+          .firstWhere(
+            (DrawingResult? r) =>
+                r!.category.toLowerCase() == _prompt.toLowerCase(),
+            orElse: () => null,
+          );
+      if (promptResult != null) {
+        _lastConfidence = promptResult.confidence;
+      }
+
       final bool matched = _classifier.doesMatch(
         results,
         _prompt,
@@ -140,6 +154,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   }
 
   Future<void> _recordDismissal() async {
+    final int duration = DateTime.now().difference(_startTime).inSeconds;
     final StorageService storage = StorageService();
     await storage.init();
     await storage.addDismissal(
@@ -147,6 +162,8 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
         category: _prompt,
         attempts: _attempts,
         timestamp: DateTime.now(),
+        confidence: _lastConfidence,
+        durationSeconds: duration,
       ),
     );
   }
