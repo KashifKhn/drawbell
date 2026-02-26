@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
 
-import 'screens/home/home_screen.dart';
+import 'core/constants.dart';
 import 'screens/alarm_editor/alarm_editor_screen.dart';
+import 'screens/alarm_ring/alarm_ring_screen.dart';
+import 'screens/home/home_screen.dart';
 import 'screens/settings/settings_screen.dart';
 
 final GoRouter router = GoRouter(
@@ -24,6 +26,14 @@ final GoRouter router = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         final String alarmId = state.pathParameters['id']!;
         return AlarmEditorScreen(alarmId: alarmId);
+      },
+    ),
+    GoRoute(
+      path: '/alarm/ring',
+      builder: (BuildContext context, GoRouterState state) {
+        final Difficulty difficulty =
+            state.extra as Difficulty? ?? Difficulty.medium;
+        return AlarmRingScreen(difficulty: difficulty);
       },
     ),
     GoRoute(

@@ -15,6 +15,9 @@ dependencies:
   intl: ^0.19.0
   shared_preferences: ^2.3.4
   uuid: ^4.5.1
+  just_audio: ^0.9.42
+  wakelock_plus: ^1.2.8
+  vibration: ^2.0.0
 
 dev_dependencies:
   flutter_test:
