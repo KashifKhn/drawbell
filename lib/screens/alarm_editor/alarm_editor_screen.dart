@@ -9,6 +9,7 @@ import '../../core/utils.dart';
 import '../../models/alarm_model.dart';
 import '../../providers/alarm_provider.dart';
 import '../../services/classifier_service.dart';
+import '../../services/ringtone_service.dart';
 import '../../theme.dart';
 import 'widgets/category_picker.dart';
 import 'widgets/day_selector.dart';
@@ -32,6 +33,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
   late String _sound;
   late bool _snooze;
   List<String> _allLabels = [];
+  Map<String, String> _ringtoneLabels = {};
 
   bool get _isEditing => widget.alarmId != null;
 
@@ -53,6 +55,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     _sound = existing?.sound ?? 'default';
     _snooze = existing?.snooze ?? true;
     _loadLabels();
+    _loadRingtoneLabels();
   }
 
   Future<void> _loadLabels() async {
@@ -60,20 +63,22 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     if (mounted) setState(() => _allLabels = labels);
   }
 
+  Future<void> _loadRingtoneLabels() async {
+    final List<RingtoneInfo> ringtones =
+        await RingtoneService.getAlarmRingtones();
+    if (mounted) {
+      setState(
+        () => _ringtoneLabels = {
+          for (final RingtoneInfo r in ringtones) r.uri: r.title,
+        },
+      );
+    }
+  }
+
   @override
   void dispose() {
     _labelController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _time,
-    );
-    if (picked != null) {
-      setState(() => _time = picked);
-    }
   }
 
   Future<void> _openCategoryPicker() async {
@@ -216,51 +221,61 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
   }
 
   Widget _buildTimePicker(ColorScheme colors, TextTheme textTheme) {
-    final String hour = _time.hourOfPeriod == 0
-        ? '12'
-        : _time.hourOfPeriod.toString().padLeft(2, '0');
-    final String minute = _time.minute.toString().padLeft(2, '0');
-    final String period = _time.period == DayPeriod.am ? 'AM' : 'PM';
+    final bool isPm = _time.period == DayPeriod.pm;
 
-    return GestureDetector(
-      onTap: _pickTime,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _TimeBox(value: hour, colors: colors, textTheme: textTheme),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                ':',
-                style: textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
-                  fontSize: 36,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _TimeScrollColumn(
+            itemCount: 12,
+            initialValue: _time.hourOfPeriod,
+            labelFor: (int i) => (i == 0 ? 12 : i).toString().padLeft(2, '0'),
+            onChanged: (int i) {
+              final bool pm = _time.period == DayPeriod.pm;
+              setState(
+                () => _time = TimeOfDay(
+                  hour: i + (pm ? 12 : 0),
+                  minute: _time.minute,
                 ),
+              );
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              ':',
+              style: textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colors.onSurface,
+                fontSize: 40,
               ),
             ),
-            _TimeBox(value: minute, colors: colors, textTheme: textTheme),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.brandOrange,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                period,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+          ),
+          _TimeScrollColumn(
+            itemCount: 60,
+            initialValue: _time.minute,
+            labelFor: (int i) => i.toString().padLeft(2, '0'),
+            onChanged: (int i) {
+              setState(() => _time = TimeOfDay(hour: _time.hour, minute: i));
+            },
+          ),
+          const SizedBox(width: 12),
+          _AmPmToggle(
+            isPm: isPm,
+            onChanged: (bool newIsPm) {
+              final int h = _time.hourOfPeriod;
+              setState(
+                () => _time = TimeOfDay(
+                  hour: h + (newIsPm ? 12 : 0),
+                  minute: _time.minute,
                 ),
-              ),
-            ),
-          ],
-        ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -291,7 +306,9 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     final String labelValue = _labelController.text.isEmpty
         ? 'None'
         : _labelController.text;
-    final String soundValue = AlarmSound.fromKey(_sound).label;
+    final String soundValue = _sound.startsWith('content://')
+        ? (_ringtoneLabels[_sound] ?? 'Custom Sound')
+        : AlarmSound.fromKey(_sound).label;
 
     return Card(
       child: Column(
@@ -645,28 +662,32 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
   void _showSoundSheet() {
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext sheetContext) {
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Alarm Sound',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                SoundPicker(
-                  selected: _sound,
-                  onChanged: (String s) {
-                    setState(() => _sound = s);
-                    Navigator.pop(sheetContext);
-                  },
-                ),
-                const SizedBox(height: 8),
-              ],
+          child: SizedBox(
+            height: MediaQuery.of(sheetContext).size.height * 0.6,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Alarm Sound',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: SoundPicker(
+                      selected: _sound,
+                      onChanged: (String s) {
+                        setState(() => _sound = s);
+                        Navigator.pop(sheetContext);
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -675,35 +696,152 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
   }
 }
 
-class _TimeBox extends StatelessWidget {
-  final String value;
-  final ColorScheme colors;
-  final TextTheme textTheme;
+class _TimeScrollColumn extends StatefulWidget {
+  final int itemCount;
+  final int initialValue;
+  final String Function(int) labelFor;
+  final ValueChanged<int> onChanged;
 
-  const _TimeBox({
-    required this.value,
-    required this.colors,
-    required this.textTheme,
+  const _TimeScrollColumn({
+    required this.itemCount,
+    required this.initialValue,
+    required this.labelFor,
+    required this.onChanged,
+  });
+
+  @override
+  State<_TimeScrollColumn> createState() => _TimeScrollColumnState();
+}
+
+class _TimeScrollColumnState extends State<_TimeScrollColumn> {
+  late FixedExtentScrollController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = FixedExtentScrollController(initialItem: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    const double itemExtent = 64.0;
+    const double columnWidth = 88.0;
+
+    return SizedBox(
+      width: columnWidth,
+      height: itemExtent * 3,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          IgnorePointer(
+            child: Container(
+              height: itemExtent,
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.brandOrange.withAlpha(60),
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+          ListWheelScrollView.useDelegate(
+            controller: _controller,
+            itemExtent: itemExtent,
+            diameterRatio: 100,
+            physics: const FixedExtentScrollPhysics(),
+            overAndUnderCenterOpacity: 0.35,
+            onSelectedItemChanged: (int i) {
+              final int n = widget.itemCount;
+              widget.onChanged(((i % n) + n) % n);
+            },
+            childDelegate: ListWheelChildLoopingListDelegate(
+              children: List<Widget>.generate(
+                widget.itemCount,
+                (int i) => Center(
+                  child: Text(
+                    widget.labelFor(i),
+                    style: textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                      fontSize: 40,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AmPmToggle extends StatelessWidget {
+  final bool isPm;
+  final ValueChanged<bool> onChanged;
+
+  const _AmPmToggle({required this.isPm, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _AmPmChip(
+          label: 'AM',
+          isSelected: !isPm,
+          onTap: () => onChanged(false),
+        ),
+        const SizedBox(height: 8),
+        _AmPmChip(label: 'PM', isSelected: isPm, onTap: () => onChanged(true)),
+      ],
+    );
+  }
+}
+
+class _AmPmChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _AmPmChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppTheme.brandOrange.withAlpha(60),
-          width: 1.5,
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.brandOrange
+              : colors.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(10),
         ),
-      ),
-      child: Text(
-        value,
-        style: textTheme.headlineLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: colors.onSurface,
-          fontSize: 40,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : colors.onSurfaceVariant,
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            letterSpacing: 0.5,
+          ),
         ),
       ),
     );
