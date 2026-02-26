@@ -34,3 +34,38 @@ const double canvasStrokeWidth = 4.0;
 const double canvasBorderRadius = 16.0;
 const Duration idleTimeout = Duration(seconds: 30);
 const Duration snoozeDuration = Duration(minutes: 5);
+
+enum AlarmSound {
+  defaultTone,
+  gentle,
+  urgent,
+  melody;
+
+  String get assetPath => switch (this) {
+    AlarmSound.defaultTone => 'assets/sounds/alarm_default.mp3',
+    AlarmSound.gentle => 'assets/sounds/alarm_gentle.mp3',
+    AlarmSound.urgent => 'assets/sounds/alarm_urgent.mp3',
+    AlarmSound.melody => 'assets/sounds/alarm_melody.mp3',
+  };
+
+  String get label => switch (this) {
+    AlarmSound.defaultTone => 'Default',
+    AlarmSound.gentle => 'Gentle',
+    AlarmSound.urgent => 'Urgent',
+    AlarmSound.melody => 'Melody',
+  };
+
+  String get key => switch (this) {
+    AlarmSound.defaultTone => 'default',
+    AlarmSound.gentle => 'gentle',
+    AlarmSound.urgent => 'urgent',
+    AlarmSound.melody => 'melody',
+  };
+
+  static AlarmSound fromKey(String key) {
+    return AlarmSound.values.firstWhere(
+      (AlarmSound s) => s.key == key,
+      orElse: () => AlarmSound.defaultTone,
+    );
+  }
+}

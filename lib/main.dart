@@ -51,9 +51,14 @@ void _handleNotificationPayload(String payload) {
     final List<String> categories = data['categories'] != null
         ? List<String>.from(data['categories'] as List)
         : const [];
+    final String sound = data['sound'] as String? ?? 'default';
     _router.push(
       '/alarm/ring',
-      extra: {'difficulty': difficulty, 'categories': categories},
+      extra: {
+        'difficulty': difficulty,
+        'categories': categories,
+        'sound': sound,
+      },
     );
   } on FormatException {
     _router.push('/alarm/ring', extra: {'difficulty': Difficulty.medium});

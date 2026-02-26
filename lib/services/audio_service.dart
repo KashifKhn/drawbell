@@ -4,6 +4,8 @@ import 'package:just_audio/just_audio.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../core/constants.dart';
+
 class AudioService {
   final AudioPlayer _player = AudioPlayer();
   bool _isPlaying = false;
@@ -11,9 +13,9 @@ class AudioService {
 
   bool get isPlaying => _isPlaying;
 
-  Future<void> startAlarm() async {
+  Future<void> startAlarm({String sound = 'default'}) async {
     await WakelockPlus.enable();
-    await _loadAudio();
+    await _loadAudio(sound);
     if (_audioAvailable) {
       await _player.setLoopMode(LoopMode.one);
       await _player.setVolume(1.0);
@@ -23,9 +25,10 @@ class AudioService {
     _startVibration();
   }
 
-  Future<void> _loadAudio() async {
+  Future<void> _loadAudio(String soundKey) async {
     try {
-      await _player.setAsset('assets/sounds/alarm_default.mp3');
+      final AlarmSound alarmSound = AlarmSound.fromKey(soundKey);
+      await _player.setAsset(alarmSound.assetPath);
       _audioAvailable = true;
     } on PlayerException catch (e) {
       dev.log('Asset sound not found: $e');

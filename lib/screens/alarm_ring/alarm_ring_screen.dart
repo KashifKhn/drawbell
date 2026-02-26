@@ -22,11 +22,13 @@ import 'widgets/success_overlay.dart';
 class AlarmRingScreen extends StatefulWidget {
   final Difficulty difficulty;
   final List<String> categories;
+  final String sound;
 
   const AlarmRingScreen({
     super.key,
     required this.difficulty,
     this.categories = const [],
+    this.sound = 'default',
   });
 
   @override
@@ -62,7 +64,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     await _classifier.load();
     _pickPrompt();
     setState(() => _isLoading = false);
-    _audio.startAlarm();
+    _audio.startAlarm(sound: widget.sound);
     _resetIdleTimer();
   }
 

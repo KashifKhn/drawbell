@@ -20,6 +20,7 @@ class AlarmService {
       'alarmId': alarm.id,
       'difficulty': alarm.difficulty.index,
       'categories': alarm.categories,
+      'sound': alarm.sound,
     });
 
     final String title = alarm.label.isNotEmpty ? alarm.label : 'DrawBell';

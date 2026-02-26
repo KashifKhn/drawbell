@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants.dart';
+import '../../theme.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -15,40 +16,44 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
         children: [
+          _SectionHeader(title: 'TEST', textTheme: textTheme, colors: colors),
           const SizedBox(height: 8),
-          _SectionHeader(title: 'Test', textTheme: textTheme),
-          ListTile(
-            leading: Icon(Icons.play_arrow_rounded, color: colors.primary),
-            title: const Text('Test Alarm'),
-            subtitle: const Text('Try the drawing challenge now'),
-            onTap: () => _showTestDifficultyPicker(context),
+          Card(
+            child: _SettingsTile(
+              icon: Icons.play_arrow_rounded,
+              title: 'Test Alarm',
+              subtitle: 'Try the drawing challenge now',
+              showChevron: true,
+              onTap: () => _showTestDifficultyPicker(context),
+            ),
           ),
-          const Divider(),
-          _SectionHeader(title: 'Stats', textTheme: textTheme),
-          ListTile(
-            leading: Icon(Icons.bar_chart_rounded, color: colors.primary),
-            title: const Text('Drawing Stats'),
-            subtitle: const Text('Dismissals, attempts, categories'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/stats'),
-          ),
-          const Divider(),
-          _SectionHeader(title: 'About', textTheme: textTheme),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('DrawBell'),
-            subtitle: const Text('Version 1.0.0'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.smart_toy_outlined),
-            title: const Text('AI Model'),
-            subtitle: const Text('SE-ResNet, 345 categories, 76% accuracy'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.brush_outlined),
-            title: const Text('Dataset'),
-            subtitle: const Text('Google Quick Draw'),
+          const SizedBox(height: 24),
+          _SectionHeader(title: 'ABOUT', textTheme: textTheme, colors: colors),
+          const SizedBox(height: 8),
+          Card(
+            child: Column(
+              children: [
+                const _SettingsTile(
+                  icon: Icons.info_outline,
+                  title: 'DrawBell',
+                  subtitle: 'Version 1.0.0',
+                ),
+                Divider(height: 1, indent: 52, color: colors.outlineVariant),
+                const _SettingsTile(
+                  icon: Icons.smart_toy_outlined,
+                  title: 'AI Model',
+                  subtitle: 'SE-ResNet, 345 categories, 76% accuracy',
+                ),
+                Divider(height: 1, indent: 52, color: colors.outlineVariant),
+                const _SettingsTile(
+                  icon: Icons.brush_outlined,
+                  title: 'Dataset',
+                  subtitle: 'Google Quick Draw',
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -60,29 +65,41 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (BuildContext sheetContext) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
                   'Choose Difficulty',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-              ...Difficulty.values.map(
-                (Difficulty d) => ListTile(
-                  title: Text(d.label),
-                  subtitle: Text('Threshold: ${(d.threshold * 100).toInt()}%'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    context.push('/alarm/ring', extra: {'difficulty': d});
-                  },
+                const SizedBox(height: 16),
+                ...Difficulty.values.map(
+                  (Difficulty d) => ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    leading: Icon(
+                      Icons.speed_outlined,
+                      color: AppTheme.brandOrange,
+                    ),
+                    title: Text(d.label),
+                    subtitle: Text(
+                      'Threshold: ${(d.threshold * 100).toInt()}%',
+                    ),
+                    trailing: const Icon(Icons.chevron_right, size: 18),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      context.push(
+                        '/alarm/ring',
+                        extra: <String, dynamic>{'difficulty': d},
+                      );
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-            ],
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         );
       },
@@ -93,18 +110,84 @@ class SettingsScreen extends StatelessWidget {
 class _SectionHeader extends StatelessWidget {
   final String title;
   final TextTheme textTheme;
+  final ColorScheme colors;
 
-  const _SectionHeader({required this.title, required this.textTheme});
+  const _SectionHeader({
+    required this.title,
+    required this.textTheme,
+    required this.colors,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.only(left: 4),
       child: Text(
         title,
-        style: textTheme.titleSmall?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
+        style: textTheme.labelSmall?.copyWith(
+          color: colors.onSurfaceVariant,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool showChevron;
+  final VoidCallback? onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.showChevron = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: AppTheme.brandOrange),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 15, color: colors.onSurface),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (showChevron)
+              Icon(
+                Icons.chevron_right,
+                size: 18,
+                color: colors.onSurfaceVariant,
+              ),
+          ],
         ),
       ),
     );
