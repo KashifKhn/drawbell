@@ -7,10 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants.dart';
+import '../../models/dismissal_record.dart';
 import '../../models/drawing_result.dart';
 import '../../services/audio_service.dart';
 import '../../services/classifier_service.dart';
 import '../../services/notification_service.dart';
+import '../../services/storage_service.dart';
 import 'widgets/attempt_counter.dart';
 import 'widgets/drawing_canvas.dart';
 import 'widgets/prompt_header.dart';
@@ -119,12 +121,25 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       _isDismissed = true;
     });
     _audio.stopAlarm();
+    _recordDismissal();
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
         context.go('/');
       }
     });
+  }
+
+  Future<void> _recordDismissal() async {
+    final StorageService storage = StorageService();
+    await storage.init();
+    await storage.addDismissal(
+      DismissalRecord(
+        category: _prompt,
+        attempts: _attempts,
+        timestamp: DateTime.now(),
+      ),
+    );
   }
 
   void _onFailure() {

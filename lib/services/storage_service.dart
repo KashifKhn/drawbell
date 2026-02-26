@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/alarm_model.dart';
+import '../models/dismissal_record.dart';
 
 class StorageService {
   static const String _alarmsKey = 'alarms';
+  static const String _statsKey = 'dismissal_stats';
+  static const String _onboardingKey = 'onboarding_complete';
 
   SharedPreferences? _prefs;
 
@@ -58,5 +61,30 @@ class StorageService {
     } on StateError {
       return null;
     }
+  }
+
+  List<DismissalRecord> loadStats() {
+    final String? raw = _prefs?.getString(_statsKey);
+    if (raw == null) return [];
+
+    final List<dynamic> decoded = jsonDecode(raw) as List<dynamic>;
+    return decoded
+        .map((dynamic e) => DismissalRecord.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> addDismissal(DismissalRecord record) async {
+    final List<DismissalRecord> stats = loadStats();
+    stats.add(record);
+    final String encoded = jsonEncode(
+      stats.map((DismissalRecord r) => r.toJson()).toList(),
+    );
+    await _prefs?.setString(_statsKey, encoded);
+  }
+
+  bool get isOnboardingComplete => _prefs?.getBool(_onboardingKey) ?? false;
+
+  Future<void> setOnboardingComplete() async {
+    await _prefs?.setBool(_onboardingKey, true);
   }
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'core/constants.dart';
 import 'providers/alarm_provider.dart';
@@ -11,11 +12,18 @@ import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'theme.dart';
 
+late final GoRouter _router;
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final StorageService storage = StorageService();
   await storage.init();
+
+  final String initialRoute = storage.isOnboardingComplete
+      ? '/'
+      : '/onboarding';
+  _router = buildRouter(initialLocation: initialRoute);
 
   final NotificationService notifications = NotificationService();
   await notifications.init(
@@ -40,9 +48,9 @@ void _handleNotificationPayload(String payload) {
         jsonDecode(payload) as Map<String, dynamic>;
     final int difficultyIndex = data['difficulty'] as int? ?? 1;
     final Difficulty difficulty = Difficulty.values[difficultyIndex];
-    router.push('/alarm/ring', extra: difficulty);
+    _router.push('/alarm/ring', extra: difficulty);
   } on FormatException {
-    router.push('/alarm/ring', extra: Difficulty.medium);
+    _router.push('/alarm/ring', extra: Difficulty.medium);
   }
 }
 
@@ -70,7 +78,7 @@ class _DrawBellAppState extends ConsumerState<DrawBellApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      routerConfig: router,
+      routerConfig: _router,
     );
   }
 }

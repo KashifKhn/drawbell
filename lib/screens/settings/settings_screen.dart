@@ -25,6 +25,15 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _showTestDifficultyPicker(context),
           ),
           const Divider(),
+          _SectionHeader(title: 'Stats', textTheme: textTheme),
+          ListTile(
+            leading: Icon(Icons.bar_chart_rounded, color: colors.primary),
+            title: const Text('Drawing Stats'),
+            subtitle: const Text('Dismissals, attempts, categories'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/stats'),
+          ),
+          const Divider(),
           _SectionHeader(title: 'About', textTheme: textTheme),
           ListTile(
             leading: const Icon(Icons.info_outline),
