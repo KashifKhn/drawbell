@@ -27,11 +27,17 @@ class AudioService {
 
   Future<void> _loadAudio(String soundKey) async {
     try {
-      final AlarmSound alarmSound = AlarmSound.fromKey(soundKey);
-      await _player.setAsset(alarmSound.assetPath);
+      if (soundKey.startsWith('content://') ||
+          soundKey.startsWith('file://') ||
+          soundKey.startsWith('http')) {
+        await _player.setAudioSource(AudioSource.uri(Uri.parse(soundKey)));
+      } else {
+        final AlarmSound alarmSound = AlarmSound.fromKey(soundKey);
+        await _player.setAsset(alarmSound.assetPath);
+      }
       _audioAvailable = true;
     } on PlayerException catch (e) {
-      dev.log('Asset sound not found: $e');
+      dev.log('Sound not found: $e');
       _audioAvailable = false;
     } on PlayerInterruptedException catch (e) {
       dev.log('Audio interrupted: $e');

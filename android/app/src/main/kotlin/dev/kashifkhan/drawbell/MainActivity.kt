@@ -1,5 +1,162 @@
 package dev.kashifkhan.drawbell
 
+import android.Manifest
+import android.content.ContentUris
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity()
+class MainActivity : FlutterActivity() {
+
+    companion object {
+        private const val CHANNEL = "dev.kashifkhan.drawbell/ringtones"
+        private const val AUDIO_PERMISSION_CODE = 1001
+    }
+
+    private var pendingPermissionResult: MethodChannel.Result? = null
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getAlarmRingtones" -> {
+                        try {
+                            result.success(getAlarmRingtones())
+                        } catch (e: Exception) {
+                            result.error("RINGTONE_ERROR", e.message, null)
+                        }
+                    }
+                    "requestAudioPermission" -> requestAudioPermission(result)
+                    "openAppSettings" -> {
+                        try {
+                            val intent = Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", packageName, null),
+                            )
+                            startActivity(intent)
+                            result.success(true)
+                        } catch (_: Exception) {
+                            result.success(false)
+                        }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    private fun requestAudioPermission(result: MethodChannel.Result) {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_AUDIO
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        if (ContextCompat.checkSelfPermission(this, permission)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            result.success("granted")
+            return
+        }
+
+        pendingPermissionResult = result
+        ActivityCompat.requestPermissions(
+            this, arrayOf(permission), AUDIO_PERMISSION_CODE,
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == AUDIO_PERMISSION_CODE) {
+            val granted = grantResults.isNotEmpty() &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED
+            pendingPermissionResult?.success(if (granted) "granted" else "denied")
+            pendingPermissionResult = null
+        }
+    }
+
+    private fun getAlarmRingtones(): List<Map<String, String>> {
+        val results = mutableListOf<Map<String, String>>()
+
+        // Query both internal and external MediaStore URIs.
+        // On Android 10+ the built-in alarm sounds (Cesium, Argon, etc.) are
+        // indexed under the external URI even though they live on the system
+        // partition.  The internal URI covers older devices / custom ROMs that
+        // still use it.
+        queryMediaStoreAlarms(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, results)
+        queryMediaStoreAlarms(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, results)
+
+        // Fallback: RingtoneManager covers any tones not surfaced by MediaStore
+        // (e.g., OEM alarm packs on some devices).
+        if (results.isEmpty()) {
+            queryRingtoneManager(results)
+        }
+
+        return results.sortedBy { it["title"] }
+    }
+
+    private fun queryMediaStoreAlarms(
+        baseUri: android.net.Uri,
+        into: MutableList<Map<String, String>>,
+    ) {
+        val projection = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.TITLE,
+        )
+        val selection = "${MediaStore.Audio.Media.IS_ALARM} = 1"
+        val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
+
+        try {
+            contentResolver.query(baseUri, projection, selection, null, sortOrder)
+                ?.use { cursor ->
+                    val idCol =
+                        cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                    val titleCol =
+                        cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
+                    while (cursor.moveToNext()) {
+                        val id = cursor.getLong(idCol)
+                        val title = cursor.getString(titleCol) ?: continue
+                        val uri =
+                            ContentUris.withAppendedId(baseUri, id).toString()
+                        if (into.none { it["uri"] == uri }) {
+                            into.add(mapOf("title" to title, "uri" to uri))
+                        }
+                    }
+                }
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun queryRingtoneManager(into: MutableList<Map<String, String>>) {
+        try {
+            val rm = RingtoneManager(this)
+            rm.setType(RingtoneManager.TYPE_ALARM)
+            val cursor = rm.cursor
+            cursor.use {
+                while (it.moveToNext()) {
+                    val title =
+                        it.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                            ?: continue
+                    val uri = rm.getRingtoneUri(it.position).toString()
+                    if (into.none { r -> r["uri"] == uri }) {
+                        into.add(mapOf("title" to title, "uri" to uri))
+                    }
+                }
+            }
+        } catch (_: Exception) {
+        }
+    }
+}
