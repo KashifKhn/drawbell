@@ -22,7 +22,7 @@ class AppTheme {
       brightness: Brightness.dark,
       primary: brandOrange,
       onPrimary: Colors.white,
-      primaryContainer: const Color(0xFF4A2000),
+      primaryContainer: brandOrange,
       onPrimaryContainer: const Color(0xFFFFDBC9),
       secondary: const Color(0xFFD4896A),
       onSecondary: const Color(0xFF3E1D04),

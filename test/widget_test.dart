@@ -106,6 +106,39 @@ void main() {
       expect(restored.label, 'Work alarm');
     });
 
+    test('serializes categories and sound to JSON', () {
+      final AlarmModel alarm = AlarmModel(
+        id: 'cat-test',
+        time: const TimeOfDay(hour: 8, minute: 0),
+        categories: ['cat', 'dog', 'tree'],
+        sound: 'gentle',
+      );
+
+      final Map<String, dynamic> json = alarm.toJson();
+      expect(json['categories'], ['cat', 'dog', 'tree']);
+      expect(json['sound'], 'gentle');
+
+      final AlarmModel restored = AlarmModel.fromJson(json);
+      expect(restored.categories, ['cat', 'dog', 'tree']);
+      expect(restored.sound, 'gentle');
+    });
+
+    test('fromJson defaults categories to empty when missing', () {
+      final Map<String, dynamic> json = {
+        'id': 'old-alarm',
+        'hour': 6,
+        'minute': 0,
+        'repeatDays': <int>[],
+        'difficulty': 1,
+        'isEnabled': true,
+        'label': '',
+        'sound': 'default',
+      };
+
+      final AlarmModel alarm = AlarmModel.fromJson(json);
+      expect(alarm.categories, isEmpty);
+    });
+
     test('copyWith creates modified copy', () {
       final AlarmModel alarm = AlarmModel(
         id: 'test-id',
@@ -117,6 +150,22 @@ void main() {
       expect(toggled.isEnabled, isFalse);
       expect(toggled.id, alarm.id);
       expect(toggled.time, alarm.time);
+    });
+
+    test('copyWith updates categories and sound', () {
+      final AlarmModel alarm = AlarmModel(
+        id: 'test-id',
+        time: const TimeOfDay(hour: 7, minute: 0),
+      );
+
+      final AlarmModel updated = alarm.copyWith(
+        categories: ['apple', 'banana'],
+        sound: 'urgent',
+      );
+
+      expect(updated.categories, ['apple', 'banana']);
+      expect(updated.sound, 'urgent');
+      expect(updated.id, alarm.id);
     });
   });
 
@@ -164,6 +213,41 @@ void main() {
       final DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
 
       expect(next.day, tomorrow.day);
+    });
+  });
+
+  group('AlarmSound', () {
+    test('has correct keys', () {
+      expect(AlarmSound.defaultTone.key, 'default');
+      expect(AlarmSound.gentle.key, 'gentle');
+      expect(AlarmSound.urgent.key, 'urgent');
+      expect(AlarmSound.melody.key, 'melody');
+    });
+
+    test('has correct labels', () {
+      expect(AlarmSound.defaultTone.label, 'Default');
+      expect(AlarmSound.gentle.label, 'Gentle');
+      expect(AlarmSound.urgent.label, 'Urgent');
+      expect(AlarmSound.melody.label, 'Melody');
+    });
+
+    test('fromKey returns correct enum value', () {
+      expect(AlarmSound.fromKey('default'), AlarmSound.defaultTone);
+      expect(AlarmSound.fromKey('gentle'), AlarmSound.gentle);
+      expect(AlarmSound.fromKey('urgent'), AlarmSound.urgent);
+      expect(AlarmSound.fromKey('melody'), AlarmSound.melody);
+    });
+
+    test('fromKey returns defaultTone for unknown key', () {
+      expect(AlarmSound.fromKey('unknown'), AlarmSound.defaultTone);
+      expect(AlarmSound.fromKey(''), AlarmSound.defaultTone);
+    });
+
+    test('asset paths are valid', () {
+      for (final AlarmSound sound in AlarmSound.values) {
+        expect(sound.assetPath, startsWith('assets/sounds/'));
+        expect(sound.assetPath, endsWith('.mp3'));
+      }
     });
   });
 }
