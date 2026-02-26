@@ -12,6 +12,7 @@ class AlarmModel {
   final String sound;
   final List<String> categories;
   final bool snooze;
+  final DateTime? scheduledDate;
 
   const AlarmModel({
     required this.id,
@@ -23,6 +24,7 @@ class AlarmModel {
     this.sound = 'default',
     this.categories = const [],
     this.snooze = true,
+    this.scheduledDate,
   });
 
   AlarmModel copyWith({
@@ -35,6 +37,7 @@ class AlarmModel {
     String? sound,
     List<String>? categories,
     bool? snooze,
+    DateTime? Function()? scheduledDate,
   }) {
     return AlarmModel(
       id: id ?? this.id,
@@ -46,6 +49,9 @@ class AlarmModel {
       sound: sound ?? this.sound,
       categories: categories ?? this.categories,
       snooze: snooze ?? this.snooze,
+      scheduledDate: scheduledDate != null
+          ? scheduledDate()
+          : this.scheduledDate,
     );
   }
 
@@ -61,6 +67,7 @@ class AlarmModel {
       'sound': sound,
       'categories': categories,
       'snooze': snooze,
+      'scheduledDate': scheduledDate?.toIso8601String(),
     };
   }
 
@@ -77,6 +84,9 @@ class AlarmModel {
           ? List<String>.from(json['categories'] as List)
           : const [],
       snooze: json['snooze'] as bool? ?? true,
+      scheduledDate: json['scheduledDate'] != null
+          ? DateTime.parse(json['scheduledDate'] as String)
+          : null,
     );
   }
 }

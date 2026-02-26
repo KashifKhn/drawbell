@@ -15,7 +15,11 @@ class AlarmService {
   Future<void> scheduleAlarm(AlarmModel alarm) async {
     if (!alarm.isEnabled) return;
 
-    final DateTime nextFire = computeNextFireTime(alarm.time, alarm.repeatDays);
+    final DateTime nextFire = computeNextFireTime(
+      alarm.time,
+      alarm.repeatDays,
+      scheduledDate: alarm.scheduledDate,
+    );
     final String payload = jsonEncode({
       'alarmId': alarm.id,
       'difficulty': alarm.difficulty.index,
@@ -49,8 +53,25 @@ class AlarmService {
     }
   }
 
-  static DateTime computeNextFireTime(TimeOfDay time, List<int> repeatDays) {
+  static DateTime computeNextFireTime(
+    TimeOfDay time,
+    List<int> repeatDays, {
+    DateTime? scheduledDate,
+  }) {
     final DateTime now = DateTime.now();
+
+    if (scheduledDate != null) {
+      final DateTime candidate = DateTime(
+        scheduledDate.year,
+        scheduledDate.month,
+        scheduledDate.day,
+        time.hour,
+        time.minute,
+      );
+      if (candidate.isAfter(now)) return candidate;
+      return now.add(const Duration(minutes: 1));
+    }
+
     final DateTime candidate = DateTime(
       now.year,
       now.month,

@@ -68,15 +68,37 @@ class AlarmCard extends StatelessWidget {
                   children: [
                     _CategoryBadge(alarm: alarm, alpha: disabledAlpha),
                     const SizedBox(width: 12),
-                    Opacity(
-                      opacity: disabledAlpha,
-                      child: Text(
-                        formatDays(alarm.repeatDays),
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
+                    if (alarm.scheduledDate != null)
+                      Opacity(
+                        opacity: disabledAlpha,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.calendar_today_rounded,
+                              size: 12,
+                              color: colors.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              formatScheduledDate(alarm.scheduledDate!),
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Opacity(
+                        opacity: disabledAlpha,
+                        child: Text(
+                          formatDays(alarm.repeatDays),
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ],

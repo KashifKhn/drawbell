@@ -40,15 +40,45 @@ String formatDays(List<int> days) {
   return days.map((int d) => weekdays[d]).join(', ');
 }
 
-String formatTimeUntilAlarm(TimeOfDay time, List<int> repeatDays) {
-  final DateTime nextFire = AlarmService.computeNextFireTime(time, repeatDays);
+String formatTimeUntilAlarm(
+  TimeOfDay time,
+  List<int> repeatDays, {
+  DateTime? scheduledDate,
+}) {
+  final DateTime nextFire = AlarmService.computeNextFireTime(
+    time,
+    repeatDays,
+    scheduledDate: scheduledDate,
+  );
   final Duration diff = nextFire.difference(DateTime.now());
 
-  final int hours = diff.inHours;
+  final int totalDays = diff.inDays;
+  final int hours = diff.inHours % 24;
   final int minutes = diff.inMinutes % 60;
 
-  if (hours == 0 && minutes == 0) return 'Alarm set for less than a minute';
+  if (totalDays == 0 && hours == 0 && minutes == 0) {
+    return 'Alarm set for less than a minute';
+  }
+  if (totalDays > 0) {
+    final String dayStr = totalDays == 1 ? '1 day' : '$totalDays days';
+    if (hours == 0 && minutes == 0) return 'Alarm set for $dayStr from now';
+    if (hours == 0) return 'Alarm set for $dayStr $minutes min from now';
+    if (minutes == 0) return 'Alarm set for $dayStr $hours hr from now';
+    return 'Alarm set for $dayStr $hours hr $minutes min from now';
+  }
   if (hours == 0) return 'Alarm set for $minutes min from now';
   if (minutes == 0) return 'Alarm set for $hours hr from now';
   return 'Alarm set for $hours hr $minutes min from now';
+}
+
+String formatScheduledDate(DateTime date) {
+  final DateTime now = DateTime.now();
+  final DateTime today = DateTime(now.year, now.month, now.day);
+  final DateTime target = DateTime(date.year, date.month, date.day);
+  final int dayDiff = target.difference(today).inDays;
+
+  if (dayDiff == 0) return 'Today';
+  if (dayDiff == 1) return 'Tomorrow';
+  if (dayDiff < 7) return DateFormat.EEEE().format(date);
+  return DateFormat.yMMMd().format(date);
 }

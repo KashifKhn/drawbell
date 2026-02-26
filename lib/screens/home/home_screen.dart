@@ -86,7 +86,11 @@ class HomeScreen extends ConsumerWidget {
                           .toggleAlarm(alarm.id);
                       final bool willEnable = !alarm.isEnabled;
                       final String message = willEnable
-                          ? formatTimeUntilAlarm(alarm.time, alarm.repeatDays)
+                          ? formatTimeUntilAlarm(
+                              alarm.time,
+                              alarm.repeatDays,
+                              scheduledDate: alarm.scheduledDate,
+                            )
                           : 'Alarm off';
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(

@@ -32,6 +32,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
   late List<String> _categories;
   late String _sound;
   late bool _snooze;
+  DateTime? _scheduledDate;
   List<String> _allLabels = [];
   Map<String, String> _ringtoneLabels = {};
 
@@ -54,6 +55,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     _categories = List<String>.from(existing?.categories ?? []);
     _sound = existing?.sound ?? 'default';
     _snooze = existing?.snooze ?? true;
+    _scheduledDate = existing?.scheduledDate;
     _loadLabels();
     _loadRingtoneLabels();
   }
@@ -105,6 +107,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
       categories: _categories,
       sound: _sound,
       snooze: _snooze,
+      scheduledDate: _scheduledDate,
     );
 
     if (_isEditing) {
@@ -113,7 +116,11 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
       ref.read(alarmListProvider.notifier).addAlarm(alarm);
     }
 
-    final String message = formatTimeUntilAlarm(_time, _repeatDays);
+    final String message = formatTimeUntilAlarm(
+      _time,
+      _repeatDays,
+      scheduledDate: _scheduledDate,
+    );
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
@@ -155,6 +162,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
         'difficulty': _difficulty,
         'categories': _categories,
         'sound': _sound,
+        'isTestMode': true,
       },
     );
   }
@@ -196,13 +204,19 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
           const SizedBox(height: 8),
           Center(
             child: Text(
-              formatTimeUntilAlarm(_time, _repeatDays),
+              formatTimeUntilAlarm(
+                _time,
+                _repeatDays,
+                scheduledDate: _scheduledDate,
+              ),
               style: textTheme.bodySmall?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
             ),
           ),
           const SizedBox(height: 24),
+          _buildScheduleDateSection(colors, textTheme),
+          const SizedBox(height: 16),
           _buildRepeatSection(colors, textTheme),
           const SizedBox(height: 16),
           _buildSettingsCard(colors, textTheme),
@@ -278,6 +292,98 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildScheduleDateSection(ColorScheme colors, TextTheme textTheme) {
+    final bool hasDate = _scheduledDate != null;
+    final String dateLabel = hasDate
+        ? formatScheduledDate(_scheduledDate!)
+        : 'No date set';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
+            'Schedule Date',
+            style: textTheme.titleSmall?.copyWith(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Card(
+          child: _SettingsTile(
+            icon: Icons.calendar_today_rounded,
+            title: 'Date',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  dateLabel,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: hasDate
+                        ? AppTheme.brandOrange
+                        : colors.onSurfaceVariant,
+                    fontWeight: hasDate ? FontWeight.w600 : null,
+                  ),
+                ),
+                if (hasDate) ...[
+                  const SizedBox(width: 4),
+                  GestureDetector(
+                    onTap: () => setState(() {
+                      _scheduledDate = null;
+                    }),
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 16,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            showChevron: true,
+            onTap: _pickScheduledDate,
+          ),
+        ),
+        if (hasDate && _repeatDays.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(left: 4, top: 8),
+            child: Text(
+              'Scheduled date overrides repeat days',
+              style: textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _pickScheduledDate() async {
+    final DateTime now = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _scheduledDate ?? now,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+      builder: (BuildContext ctx, Widget? child) {
+        return Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: Theme.of(
+              ctx,
+            ).colorScheme.copyWith(primary: AppTheme.brandOrange),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && mounted) {
+      setState(() => _scheduledDate = picked);
+    }
   }
 
   Widget _buildRepeatSection(ColorScheme colors, TextTheme textTheme) {
