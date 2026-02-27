@@ -36,6 +36,14 @@ android {
         versionName = flutter.versionName
     }
 
+    packaging {
+        jniLibs {
+            excludes += setOf(
+                "**/libtensorflowlite_gpu_jni.so"
+            )
+        }
+    }
+
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             create("release") {

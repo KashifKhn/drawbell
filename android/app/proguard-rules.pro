@@ -59,8 +59,8 @@
     public static <fields>;
 }
 
-# Google Play Core (referenced by Flutter engine for deferred components)
--dontwarn com.google.android.play.core.splitcompat.**
+# Play Core (referenced by Flutter engine, not used directly)
+-dontwarn com.google.android.play.core.splitcompat.SplitCompatApplication
 -dontwarn com.google.android.play.core.splitinstall.**
 -dontwarn com.google.android.play.core.tasks.**
 
