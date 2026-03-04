@@ -4,11 +4,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants.dart';
+import '../../models/alarm_model.dart';
 import '../../models/dismissal_record.dart';
 import '../../models/drawing_result.dart';
+import '../../providers/alarm_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/classifier_service.dart';
 import '../../services/notification_service.dart';
@@ -19,11 +22,12 @@ import 'widgets/prompt_header.dart';
 import 'widgets/result_feedback.dart';
 import 'widgets/success_overlay.dart';
 
-class AlarmRingScreen extends StatefulWidget {
+class AlarmRingScreen extends ConsumerStatefulWidget {
   final Difficulty difficulty;
   final List<String> categories;
   final String sound;
   final bool isTestMode;
+  final String? alarmId;
 
   const AlarmRingScreen({
     super.key,
@@ -31,13 +35,14 @@ class AlarmRingScreen extends StatefulWidget {
     this.categories = const [],
     this.sound = 'default',
     this.isTestMode = false,
+    this.alarmId,
   });
 
   @override
-  State<AlarmRingScreen> createState() => _AlarmRingScreenState();
+  ConsumerState<AlarmRingScreen> createState() => _AlarmRingScreenState();
 }
 
-class _AlarmRingScreenState extends State<AlarmRingScreen> {
+class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   final ClassifierService _classifier = ClassifierService();
   final AudioService _audio = AudioService();
 
@@ -75,12 +80,28 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     _resetIdleTimer();
   }
 
-  void _pickPrompt() {
+  void _pickPrompt({String? exclude}) {
     final List<String> pool = widget.categories.isNotEmpty
         ? widget.categories
         : _classifier.labels;
-    final String newPrompt = pool[Random().nextInt(pool.length)];
+    List<String> candidates = pool;
+    if (exclude != null && pool.length > 1) {
+      candidates = pool.where((String c) => c != exclude).toList();
+    }
+    final String newPrompt = candidates[Random().nextInt(candidates.length)];
     setState(() => _prompt = newPrompt);
+  }
+
+  void _changeDoodle() {
+    if (_isDismissed || _isClassifying) return;
+    _idleTimer?.cancel();
+    setState(() {
+      _strokes.clear();
+      _currentStroke.clear();
+      _lastResult = null;
+    });
+    _pickPrompt(exclude: _prompt);
+    _resetIdleTimer();
   }
 
   void _resetIdleTimer() {
@@ -96,7 +117,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       _currentStroke.clear();
       _lastResult = null;
     });
-    _pickPrompt();
+    _pickPrompt(exclude: _prompt);
     _resetIdleTimer();
   }
 
@@ -132,7 +153,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
       );
 
       if (matched) {
-        _onSuccess();
+        await _onSuccess();
       } else {
         _onFailure();
       }
@@ -141,41 +162,53 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     }
   }
 
-  void _onSuccess() {
+  Future<void> _onSuccess() async {
     _idleTimer?.cancel();
     setState(() {
       _lastResult = true;
       _isDismissed = true;
     });
-    _audio.stopAlarm();
+    await _audio.stopAlarm();
     if (!widget.isTestMode) {
-      _recordDismissal();
+      await _recordDismissal();
+      await _disableAlarmIfOneShot();
     }
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        if (widget.isTestMode) {
-          context.pop();
-        } else {
-          context.go('/');
-        }
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      if (widget.isTestMode) {
+        context.pop();
+      } else {
+        context.go('/');
       }
-    });
+    }
+  }
+
+  Future<void> _disableAlarmIfOneShot() async {
+    final String? id = widget.alarmId;
+    if (id == null) return;
+    final StorageService storage = ref.read(storageServiceProvider);
+    final AlarmModel? alarm = storage.getAlarm(id);
+    if (alarm == null) return;
+    if (alarm.repeatDays.isEmpty) {
+      final AlarmModel disabled = alarm.copyWith(isEnabled: false);
+      await ref.read(alarmListProvider.notifier).updateAlarm(disabled);
+    }
   }
 
   Future<void> _recordDismissal() async {
     final int duration = DateTime.now().difference(_startTime).inSeconds;
-    final StorageService storage = StorageService();
-    await storage.init();
-    await storage.addDismissal(
-      DismissalRecord(
-        category: _prompt,
-        attempts: _attempts,
-        timestamp: DateTime.now(),
-        confidence: _lastConfidence,
-        durationSeconds: duration,
-      ),
-    );
+    await ref
+        .read(dismissalStatsProvider.notifier)
+        .addDismissal(
+          DismissalRecord(
+            category: _prompt,
+            attempts: _attempts,
+            timestamp: DateTime.now(),
+            confidence: _lastConfidence,
+            durationSeconds: duration,
+          ),
+        );
   }
 
   void _onFailure() {
@@ -188,15 +221,6 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
     if (mercy != null && _attempts >= mercy) {
       _currentThreshold = (_currentThreshold - mercyReduction).clamp(0.1, 1.0);
     }
-
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted && !_isDismissed) {
-        setState(() {
-          _strokes.clear();
-          _lastResult = null;
-        });
-      }
-    });
   }
 
   void _undo() {
@@ -282,7 +306,10 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
                 ),
                 child: Column(
                   children: [
-                    PromptHeader(category: _prompt),
+                    PromptHeader(
+                      category: _prompt,
+                      onChangeDoodle: canInteract ? _changeDoodle : null,
+                    ),
                     const SizedBox(height: 24),
                     DrawingCanvas(
                       strokes: _strokes,

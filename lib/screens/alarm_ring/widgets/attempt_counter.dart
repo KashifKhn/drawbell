@@ -7,13 +7,19 @@ class AttemptCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (attempts == 0) return const SizedBox.shrink();
-
     final ColorScheme colors = Theme.of(context).colorScheme;
 
-    return Text(
-      'Attempt $attempts',
-      style: TextStyle(fontSize: 14, color: colors.onSurface.withAlpha(150)),
+    return SizedBox(
+      height: 20,
+      child: attempts == 0
+          ? null
+          : Text(
+              'Attempt $attempts',
+              style: TextStyle(
+                fontSize: 14,
+                color: colors.onSurface.withAlpha(150),
+              ),
+            ),
     );
   }
 }

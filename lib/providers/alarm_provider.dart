@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/alarm_model.dart';
+import '../models/dismissal_record.dart';
 import '../services/alarm_service.dart';
 import '../services/storage_service.dart';
 
@@ -16,6 +17,15 @@ alarmListProvider = StateNotifierProvider<AlarmListNotifier, List<AlarmModel>>((
   final StorageService storage = ref.watch(storageServiceProvider);
   return AlarmListNotifier(storage);
 });
+
+final StateNotifierProvider<DismissalStatsNotifier, List<DismissalRecord>>
+dismissalStatsProvider =
+    StateNotifierProvider<DismissalStatsNotifier, List<DismissalRecord>>((
+      Ref ref,
+    ) {
+      final StorageService storage = ref.watch(storageServiceProvider);
+      return DismissalStatsNotifier(storage);
+    });
 
 class AlarmListNotifier extends StateNotifier<List<AlarmModel>> {
   final StorageService _storage;
@@ -65,5 +75,20 @@ class AlarmListNotifier extends StateNotifier<List<AlarmModel>> {
 
   Future<void> rescheduleAll() async {
     await _alarmService.rescheduleAll(state);
+  }
+}
+
+class DismissalStatsNotifier extends StateNotifier<List<DismissalRecord>> {
+  final StorageService _storage;
+
+  DismissalStatsNotifier(this._storage) : super([]);
+
+  void loadStats() {
+    state = _storage.loadStats();
+  }
+
+  Future<void> addDismissal(DismissalRecord record) async {
+    await _storage.addDismissal(record);
+    state = _storage.loadStats();
   }
 }

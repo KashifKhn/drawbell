@@ -18,42 +18,53 @@ class StatsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<DismissalRecord> stats = ref
-        .watch(storageServiceProvider)
-        .loadStats();
+    final List<DismissalRecord> stats = ref.watch(dismissalStatsProvider);
     final TextTheme textTheme = Theme.of(context).textTheme;
     final ColorScheme colors = Theme.of(context).colorScheme;
 
     if (stats.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Morning Stats')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.bar_chart_rounded,
-                  size: 80,
-                  color: colors.onSurface.withAlpha(60),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No stats yet',
-                  style: textTheme.titleLarge?.copyWith(
-                    color: colors.onSurface.withAlpha(150),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            ref.read(dismissalStatsProvider.notifier).loadStats();
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.bar_chart_rounded,
+                          size: 80,
+                          color: colors.onSurface.withAlpha(60),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No stats yet',
+                          style: textTheme.titleLarge?.copyWith(
+                            color: colors.onSurface.withAlpha(150),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Dismiss an alarm to see your stats',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurface.withAlpha(100),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Dismiss an alarm to see your stats',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurface.withAlpha(100),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
@@ -89,39 +100,45 @@ class StatsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Morning Stats')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-        children: [
-          const WeekDaySelector(),
-          const SizedBox(height: 20),
-          SummaryRow(allStats: stats, lastWeekStats: lastWeek),
-          const SizedBox(height: 16),
-          StreakCard(allStats: stats),
-          const SizedBox(height: 16),
-          AccuracyCard(allStats: stats),
-          const SizedBox(height: 16),
-          WakeUpTimeCard(weekStats: lastWeek),
-          const SizedBox(height: 16),
-          ConsistencyChart(weekStats: lastWeek),
-          const SizedBox(height: 16),
-          if (hardest.isNotEmpty) ...[
-            CategorySection(
-              title: 'Hardest Categories',
-              entries: hardest,
-              isHardest: true,
-            ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(dismissalStatsProvider.notifier).loadStats();
+        },
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          children: [
+            const WeekDaySelector(),
+            const SizedBox(height: 20),
+            SummaryRow(allStats: stats, lastWeekStats: lastWeek),
             const SizedBox(height: 16),
+            StreakCard(allStats: stats),
+            const SizedBox(height: 16),
+            AccuracyCard(allStats: stats),
+            const SizedBox(height: 16),
+            WakeUpTimeCard(weekStats: lastWeek),
+            const SizedBox(height: 16),
+            ConsistencyChart(weekStats: lastWeek),
+            const SizedBox(height: 16),
+            if (hardest.isNotEmpty) ...[
+              CategorySection(
+                title: 'Hardest Categories',
+                entries: hardest,
+                isHardest: true,
+              ),
+              const SizedBox(height: 16),
+            ],
+            if (easiest.isNotEmpty)
+              CategorySection(
+                title: 'Easiest Categories',
+                entries: easiest,
+                isHardest: false,
+              ),
+            const SizedBox(height: 16),
+            GamificationCard(allStats: stats),
+            const SizedBox(height: 32),
           ],
-          if (easiest.isNotEmpty)
-            CategorySection(
-              title: 'Easiest Categories',
-              entries: easiest,
-              isHardest: false,
-            ),
-          const SizedBox(height: 16),
-          GamificationCard(allStats: stats),
-          const SizedBox(height: 32),
-        ],
+        ),
       ),
     );
   }

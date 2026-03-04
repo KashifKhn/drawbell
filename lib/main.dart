@@ -52,12 +52,14 @@ void _handleNotificationPayload(String payload) {
         ? List<String>.from(data['categories'] as List)
         : const [];
     final String sound = data['sound'] as String? ?? 'default';
+    final String? alarmId = data['alarmId'] as String?;
     _router.push(
       '/alarm/ring',
       extra: {
         'difficulty': difficulty,
         'categories': categories,
         'sound': sound,
+        if (alarmId != null) 'alarmId': alarmId,
       },
     );
   } on FormatException {
@@ -78,6 +80,7 @@ class _DrawBellAppState extends ConsumerState<DrawBellApp> {
     super.initState();
     Future.microtask(() {
       ref.read(alarmListProvider.notifier).loadAlarms();
+      ref.read(dismissalStatsProvider.notifier).loadStats();
       ref.read(alarmListProvider.notifier).rescheduleAll();
     });
   }
