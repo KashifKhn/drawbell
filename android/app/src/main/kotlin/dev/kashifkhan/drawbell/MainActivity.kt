@@ -128,6 +128,26 @@ class MainActivity : FlutterActivity() {
         return results.sortedBy { it["title"] }
     }
 
+    private fun addUniqueRingtone(
+        into: MutableList<Map<String, String>>,
+        title: String,
+        uri: String,
+    ) {
+        val normalizedTitle = normalizeRingtoneTitle(title)
+        val exists = into.any {
+            val existingTitle = normalizeRingtoneTitle(it["title"] ?: "")
+            val existingUri = it["uri"] ?: ""
+            existingUri == uri || existingTitle == normalizedTitle
+        }
+        if (!exists) {
+            into.add(mapOf("title" to title, "uri" to uri))
+        }
+    }
+
+    private fun normalizeRingtoneTitle(title: String): String {
+        return title.trim().lowercase().replace(Regex("\\s+"), " ")
+    }
+
     private fun queryMediaStoreAlarms(
         baseUri: android.net.Uri,
         into: MutableList<Map<String, String>>,
@@ -151,9 +171,7 @@ class MainActivity : FlutterActivity() {
                         val title = cursor.getString(titleCol) ?: continue
                         val uri =
                             ContentUris.withAppendedId(baseUri, id).toString()
-                        if (into.none { it["uri"] == uri }) {
-                            into.add(mapOf("title" to title, "uri" to uri))
-                        }
+                        addUniqueRingtone(into, title, uri)
                     }
                 }
         } catch (_: Exception) {
@@ -171,9 +189,7 @@ class MainActivity : FlutterActivity() {
                         it.getString(RingtoneManager.TITLE_COLUMN_INDEX)
                             ?: continue
                     val uri = rm.getRingtoneUri(it.position).toString()
-                    if (into.none { r -> r["uri"] == uri }) {
-                        into.add(mapOf("title" to title, "uri" to uri))
-                    }
+                    addUniqueRingtone(into, title, uri)
                 }
             }
         } catch (_: Exception) {
