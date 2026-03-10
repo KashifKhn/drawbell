@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header     from '../../components/Header.astro';
+import Footer     from '../../components/Footer.astro';
+import BlogCard   from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
+
+const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].sort();
+---
+
+<BaseLayout
+  title="Blog — DrawBell"
+  description="Tips, guides, and deep-dives on the DrawBell alarm app — on-device AI, drawing challenges, alarm psychology, and more."
+>
+  <Header />
+
+  <main class="min-h-screen bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5] pt-28 pb-24">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <!-- Header -->
+      <div class="mb-16">
+        <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">Blog</p>
+        <h1 class="font-display font-extrabold text-5xl sm:text-6xl
+                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917] mb-4">
+          From the blog.
+        </h1>
+        <p class="text-lg text-[#9B9189] dark:text-[#9B9189] text-[#78716C] max-w-xl">
+          Tips, research, and behind-the-scenes on building an AI-powered alarm app.
+        </p>
+      </div>
+
+      <!-- Tag filter pills -->
+      {allTags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-12">
+          {allTags.map((tag) => (
+            <span class="text-xs font-mono px-3 py-1.5 rounded-full
+                         border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+                         text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+                         bg-transparent">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <!-- Posts grid -->
+      {allPosts.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {allPosts.map((post) => (
+            <BlogCard
+              title={post.data.title}
+              description={post.data.description}
+              slug={post.slug}
+              publishedDate={post.data.publishedDate}
+              tags={post.data.tags}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-24">
+          <p class="text-[#9B9189] text-lg">No posts yet — check back soon.</p>
+        </div>
+      )}
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
