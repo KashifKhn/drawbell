@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Analytics from '@vercel/analytics/astro';
 
 export interface Props {
   title:         string;
@@ -129,10 +130,6 @@ const webSiteSchema = {
 ">
   <slot />
 
-  <!-- Vercel Analytics -->
-  <script>
-    import { inject } from '@vercel/analytics';
-    inject();
-  </script>
+  <Analytics />
 </body>
 </html>
