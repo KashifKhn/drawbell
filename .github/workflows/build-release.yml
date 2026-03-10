@@ -82,6 +82,8 @@ jobs:
         run: |
           if [ -n "${{ inputs.version_name }}" ]; then
             VERSION_NAME="${{ inputs.version_name }}"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION_NAME="${GITHUB_REF#refs/tags/v}"
           else
             VERSION_NAME=$(grep 'version:' pubspec.yaml | head -1 | sed 's/version: //' | sed 's/+.*//')
           fi

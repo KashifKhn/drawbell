@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants.dart';
 import '../../theme.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends ConsumerWidget {
   const AboutScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ColorScheme colors = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final AsyncValue<String> version = ref.watch(appVersionProvider);
 
     return Scaffold(
       body: CustomScrollView(
@@ -31,23 +34,23 @@ class AboutScreen extends StatelessWidget {
                   colors: colors,
                   textTheme: textTheme,
                   title: 'About DrawBell',
-                  rows: const [
+                  rows: [
                     _InfoRow(
                       icon: Icons.info_outline,
                       label: 'Version',
-                      value: '1.0.1',
+                      value: version.valueOrNull ?? '—',
                     ),
-                    _InfoRow(
+                    const _InfoRow(
                       icon: Icons.android_rounded,
                       label: 'Platform',
                       value: 'Android',
                     ),
-                    _InfoRow(
+                    const _InfoRow(
                       icon: Icons.language_outlined,
                       label: 'Website',
                       value: 'drawbell.kashifkhan.dev',
                     ),
-                    _InfoRow(
+                    const _InfoRow(
                       icon: Icons.lock_outline,
                       label: 'Privacy',
                       value: 'No cloud · no accounts',

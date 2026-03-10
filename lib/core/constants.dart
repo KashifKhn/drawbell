@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
 enum Difficulty {
   easy,
   medium,
@@ -69,3 +72,10 @@ enum AlarmSound {
     );
   }
 }
+
+final FutureProvider<String> appVersionProvider = FutureProvider<String>((
+  Ref<AsyncValue<String>> ref,
+) async {
+  final PackageInfo info = await PackageInfo.fromPlatform();
+  return info.version;
+});
