@@ -7,6 +7,10 @@ import 'screens/alarm_editor/alarm_editor_screen.dart';
 import 'screens/alarm_ring/alarm_ring_screen.dart';
 import 'screens/app_shell.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/info/about_screen.dart';
+import 'screens/info/contact_screen.dart';
+import 'screens/info/privacy_screen.dart';
+import 'screens/info/terms_screen.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/practice/practice_screen.dart';
 import 'screens/settings/settings_screen.dart';
@@ -62,6 +66,30 @@ GoRouter buildRouter({String initialLocation = '/'}) {
             alarmId: alarmId,
           );
         },
+      ),
+      GoRoute(
+        path: '/about',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (BuildContext context, GoRouterState state) =>
+            const AboutScreen(),
+      ),
+      GoRoute(
+        path: '/terms',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (BuildContext context, GoRouterState state) =>
+            const TermsScreen(),
+      ),
+      GoRoute(
+        path: '/privacy',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (BuildContext context, GoRouterState state) =>
+            const PrivacyScreen(),
+      ),
+      GoRoute(
+        path: '/contact',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (BuildContext context, GoRouterState state) =>
+            const ContactScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder:
