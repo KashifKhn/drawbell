@@ -1,0 +1,71 @@
+name: Drawing / AI Issue
+description: The AI did not recognise your drawing, or accepted something it shouldn't have.
+labels: ["ai", "drawing"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve the drawing recognition. The more detail you provide, the better.
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: What went wrong?
+      options:
+        - AI never accepted my drawing (false negative)
+        - AI accepted a wrong/unrelated drawing (false positive)
+        - AI recognised the wrong category
+    validations:
+      required: true
+
+  - type: input
+    id: category
+    attributes:
+      label: What category were you asked to draw?
+      placeholder: "e.g. cat, bicycle, house"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe what you drew
+      description: Describe your drawing as precisely as you can. A screenshot is even better.
+      placeholder: "e.g. I drew a cat with four legs, a tail, and whiskers. Clear outline, no colour."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty setting
+      options:
+        - Easy
+        - Medium
+        - Hard
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot of the drawing (optional but very helpful)
+      description: Paste or drag-and-drop a screenshot of the canvas at the moment of the issue.
+    validations:
+      required: false
+
+  - type: input
+    id: app_version
+    attributes:
+      label: App version
+      placeholder: "e.g. 1.0.1"
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device model & Android version
+      placeholder: "e.g. Pixel 7, Android 14"
+    validations:
+      required: true
