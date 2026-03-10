@@ -1,0 +1,64 @@
+---
+export interface Props {
+  title:         string;
+  description:   string;
+  slug:          string;
+  publishedDate: Date;
+  tags?:         string[];
+}
+const { title, description, slug, publishedDate, tags = [] } = Astro.props;
+
+const formattedDate = publishedDate.toLocaleDateString('en-US', {
+  year:  'numeric',
+  month: 'long',
+  day:   'numeric',
+});
+---
+<a
+  href={`/blog/${slug}`}
+  class="
+    group block rounded-2xl p-6
+    border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+    bg-[#131211] dark:bg-[#131211] bg-white
+    hover:border-brand dark:hover:border-brand
+    transition-all duration-300
+    hover:-translate-y-1
+  "
+>
+  <div class="flex flex-wrap gap-2 mb-3">
+    {tags.slice(0, 2).map((tag) => (
+      <span class="
+        text-xs font-mono px-2 py-0.5 rounded-full
+        text-brand border border-brand/30 bg-brand/5
+      ">{tag}</span>
+    ))}
+  </div>
+
+  <h3 class="
+    font-display text-lg font-bold leading-snug mb-2
+    text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]
+    group-hover:text-brand dark:group-hover:text-brand
+    transition-colors duration-200
+  ">{title}</h3>
+
+  <p class="
+    text-sm leading-relaxed mb-4
+    text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+    line-clamp-2
+  ">{description}</p>
+
+  <div class="flex items-center justify-between">
+    <time class="text-xs text-[#9B9189] dark:text-[#9B9189] text-[#78716C] font-mono">
+      {formattedDate}
+    </time>
+    <span class="
+      text-xs font-medium text-brand flex items-center gap-1
+      group-hover:gap-2 transition-all duration-200
+    ">
+      Read
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+      </svg>
+    </span>
+  </div>
+</a>

@@ -1,0 +1,102 @@
+---
+const year = new Date().getFullYear();
+
+const links = {
+  product: [
+    { label: 'How It Works', href: '/#how-it-works' },
+    { label: 'AI Model',     href: '/#ai-model'     },
+    { label: 'Difficulty',   href: '/#difficulty'   },
+    { label: 'Download',     href: '/download'      },
+  ],
+  resources: [
+    { label: 'Blog',                href: '/blog'                                             },
+    { label: 'App on GitHub',       href: 'https://github.com/KashifKhn/drawbell',            external: true },
+    { label: 'Model on HuggingFace', href: 'https://huggingface.co/zarqankhn/quickdraw-345-tflite', external: true },
+    { label: 'Training Code',       href: 'https://github.com/KashifKhn/quickdraw-345-classifier',  external: true },
+    { label: 'Kaggle Notebook',     href: 'https://www.kaggle.com/code/zarqankhn/quickdraw-345-doodle-classifier-tflite', external: true },
+  ],
+};
+---
+<footer class="
+  border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+  bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#F2EDE6]
+  pt-16 pb-8
+">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+
+      <!-- Brand column -->
+      <div>
+        <a href="/" aria-label="DrawBell home" class="inline-block mb-4">
+          <img src="/favicon.png" alt="DrawBell" class="h-9 w-auto" />
+        </a>
+        <p class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C] leading-relaxed max-w-xs">
+          The alarm that makes you prove you're awake. On-device AI. Zero data collected. Android-first.
+        </p>
+        <div class="mt-6 flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 text-xs font-mono
+                       px-2.5 py-1 rounded-full
+                       border border-brand/30 text-brand bg-brand/5">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></span>
+            In Development
+          </span>
+        </div>
+      </div>
+
+      <!-- Product links -->
+      <div>
+        <h3 class="text-xs font-mono uppercase tracking-widest text-brand mb-4">Product</h3>
+        <ul class="space-y-3">
+          {links.product.map(({ label, href }) => (
+            <li>
+              <a
+                href={href}
+                class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+                       hover:text-brand dark:hover:text-brand transition-colors duration-200"
+              >{label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Resources links -->
+      <div>
+        <h3 class="text-xs font-mono uppercase tracking-widest text-brand mb-4">Resources</h3>
+        <ul class="space-y-3">
+          {links.resources.map(({ label, href, external }) => (
+            <li>
+              <a
+                href={href}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'noopener noreferrer' : undefined}
+                class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+                       hover:text-brand dark:hover:text-brand transition-colors duration-200
+                       inline-flex items-center gap-1"
+              >
+                {label}
+                {external && (
+                  <svg class="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="
+      pt-8 border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+      flex flex-col sm:flex-row items-center justify-between gap-4
+      text-xs text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+    ">
+      <span>© {year} DrawBell · Built by <a href="https://kashifkhan.dev" class="hover:text-brand transition-colors">Kashif Khan</a></span>
+      <span class="font-mono">
+        Model: SE-ResNet · 345 categories · 8.44 MB · On-device
+      </span>
+    </div>
+  </div>
+</footer>
