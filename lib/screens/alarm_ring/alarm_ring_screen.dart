@@ -15,10 +15,12 @@ import '../../providers/alarm_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/classifier_service.dart';
+import '../../services/hint_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/storage_service.dart';
 import 'widgets/attempt_counter.dart';
 import 'widgets/drawing_canvas.dart';
+import 'widgets/hint_thumbnail.dart';
 import 'widgets/prompt_header.dart';
 import 'widgets/result_feedback.dart';
 import 'widgets/success_overlay.dart';
@@ -59,6 +61,11 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   double _currentThreshold = 0;
   double _lastConfidence = 0.0;
   late DateTime _startTime;
+
+  HintMode _hintMode = HintMode.none;
+  List<List<Offset>>? _hintStrokes;
+  bool _isLoadingHint = false;
+  bool _pendingClassify = false;
 
   Timer? _idleTimer;
 
@@ -101,6 +108,8 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       _strokes.clear();
       _currentStroke.clear();
       _lastResult = null;
+      _hintMode = HintMode.none;
+      _hintStrokes = null;
     });
     _pickPrompt(exclude: _prompt);
     _resetIdleTimer();
@@ -118,13 +127,49 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       _strokes.clear();
       _currentStroke.clear();
       _lastResult = null;
+      _hintMode = HintMode.none;
+      _hintStrokes = null;
     });
     _pickPrompt(exclude: _prompt);
     _resetIdleTimer();
   }
 
+  Future<void> _toggleHint() async {
+    if (_isLoadingHint || _isDismissed) return;
+
+    final HintMode next = switch (_hintMode) {
+      HintMode.none => HintMode.thumbnail,
+      HintMode.thumbnail => HintMode.trace,
+      HintMode.trace => HintMode.none,
+    };
+
+    if (next == HintMode.none) {
+      setState(() => _hintMode = HintMode.none);
+      return;
+    }
+
+    if (_hintStrokes == null) {
+      setState(() => _isLoadingHint = true);
+      final List<List<Offset>>? strokes = await HintService.getStrokes(
+        _prompt,
+        canvasSize,
+      );
+      if (!mounted) return;
+      setState(() {
+        _hintStrokes = strokes;
+        _isLoadingHint = false;
+      });
+    }
+
+    setState(() => _hintMode = _hintStrokes != null ? next : HintMode.none);
+  }
+
   Future<void> _classify() async {
-    if (_strokes.isEmpty || _isClassifying || _isDismissed) return;
+    if (_strokes.isEmpty || _isDismissed) return;
+    if (_isClassifying) {
+      _pendingClassify = true;
+      return;
+    }
     setState(() => _isClassifying = true);
 
     try {
@@ -160,7 +205,13 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
         _onFailure();
       }
     } finally {
-      if (mounted) setState(() => _isClassifying = false);
+      if (mounted) {
+        setState(() => _isClassifying = false);
+        if (_pendingClassify && !_isDismissed) {
+          _pendingClassify = false;
+          _classify();
+        }
+      }
     }
   }
 
@@ -296,6 +347,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     }
 
     final bool canInteract = !_isDismissed && !_isClassifying;
+    final bool canDraw = !_isDismissed;
 
     return PopScope(
       canPop: widget.isTestMode,
@@ -314,12 +366,22 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                     PromptHeader(
                       category: _prompt,
                       onChangeDoodle: canInteract ? _changeDoodle : null,
+                      onToggleHint: canInteract ? _toggleHint : null,
+                      hintMode: _hintMode,
                     ),
                     const SizedBox(height: 24),
                     DrawingCanvas(
                       strokes: _strokes,
                       currentStroke: _currentStroke,
-                      onPanStart: canInteract
+                      hintStrokes: _hintMode == HintMode.trace
+                          ? _hintStrokes
+                          : null,
+                      hintThumbnail:
+                          _hintMode == HintMode.thumbnail &&
+                              _hintStrokes != null
+                          ? HintThumbnail(strokes: _hintStrokes!)
+                          : null,
+                      onPanStart: canDraw
                           ? (DragStartDetails d) {
                               _resetIdleTimer();
                               setState(
@@ -327,14 +389,14 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                               );
                             }
                           : null,
-                      onPanUpdate: canInteract
+                      onPanUpdate: canDraw
                           ? (DragUpdateDetails d) {
                               setState(
                                 () => _currentStroke.add(d.localPosition),
                               );
                             }
                           : null,
-                      onPanEnd: canInteract
+                      onPanEnd: canDraw
                           ? (_) {
                               if (_currentStroke.isNotEmpty) {
                                 setState(() {
