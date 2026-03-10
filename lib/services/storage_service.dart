@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/alarm_model.dart';
@@ -9,6 +10,12 @@ class StorageService {
   static const String _alarmsKey = 'alarms';
   static const String _statsKey = 'dismissal_stats';
   static const String _onboardingKey = 'onboarding_complete';
+  static const String _defaultDifficultyKey = 'default_difficulty';
+  static const String _snoozeMinutesKey = 'snooze_minutes';
+  static const String _themeModeKey = 'theme_mode';
+  static const String _vibrationEnabledKey = 'vibration_enabled';
+  static const String _defaultSoundKey = 'default_sound';
+  static const String _defaultSnoozeEnabledKey = 'default_snooze_enabled';
 
   SharedPreferences? _prefs;
 
@@ -86,5 +93,51 @@ class StorageService {
 
   Future<void> setOnboardingComplete() async {
     await _prefs?.setBool(_onboardingKey, true);
+  }
+
+  int get defaultDifficultyIndex => _prefs?.getInt(_defaultDifficultyKey) ?? 1;
+
+  Future<void> setDefaultDifficultyIndex(int index) async {
+    await _prefs?.setInt(_defaultDifficultyKey, index);
+  }
+
+  int get snoozeMinutes => _prefs?.getInt(_snoozeMinutesKey) ?? 5;
+
+  Future<void> setSnoozeMinutes(int minutes) async {
+    await _prefs?.setInt(_snoozeMinutesKey, minutes);
+  }
+
+  ThemeMode get themeMode {
+    final int? index = _prefs?.getInt(_themeModeKey);
+    if (index == null) return ThemeMode.system;
+    return ThemeMode.values[index];
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    await _prefs?.setInt(_themeModeKey, mode.index);
+  }
+
+  bool get vibrationEnabled => _prefs?.getBool(_vibrationEnabledKey) ?? true;
+
+  Future<void> setVibrationEnabled(bool value) async {
+    await _prefs?.setBool(_vibrationEnabledKey, value);
+  }
+
+  String get defaultSoundKey =>
+      _prefs?.getString(_defaultSoundKey) ?? 'default';
+
+  Future<void> setDefaultSoundKey(String key) async {
+    await _prefs?.setString(_defaultSoundKey, key);
+  }
+
+  bool get defaultSnoozeEnabled =>
+      _prefs?.getBool(_defaultSnoozeEnabledKey) ?? true;
+
+  Future<void> setDefaultSnoozeEnabled(bool value) async {
+    await _prefs?.setBool(_defaultSnoozeEnabledKey, value);
+  }
+
+  Future<void> clearStats() async {
+    await _prefs?.remove(_statsKey);
   }
 }

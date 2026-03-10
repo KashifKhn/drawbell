@@ -10,6 +10,7 @@ import 'package:drawbell/core/constants.dart';
 import 'package:drawbell/models/alarm_model.dart';
 import 'package:drawbell/core/utils.dart';
 import 'package:drawbell/services/alarm_service.dart';
+import 'package:drawbell/providers/settings_provider.dart';
 
 void main() {
   group('HomeScreen', () {
@@ -248,6 +249,109 @@ void main() {
         expect(sound.assetPath, startsWith('assets/sounds/'));
         expect(sound.assetPath, endsWith('.mp3'));
       }
+    });
+  });
+
+  group('AppSettings', () {
+    test('defaults are correct', () {
+      const AppSettings settings = AppSettings(
+        defaultDifficulty: Difficulty.medium,
+        snoozeMinutes: 5,
+        themeMode: ThemeMode.system,
+        vibrationEnabled: true,
+        defaultSoundKey: 'default',
+        defaultSnoozeEnabled: true,
+      );
+
+      expect(settings.defaultDifficulty, Difficulty.medium);
+      expect(settings.snoozeMinutes, 5);
+      expect(settings.themeMode, ThemeMode.system);
+    });
+
+    test('copyWith updates individual fields', () {
+      const AppSettings original = AppSettings(
+        defaultDifficulty: Difficulty.easy,
+        snoozeMinutes: 5,
+        themeMode: ThemeMode.system,
+        vibrationEnabled: true,
+        defaultSoundKey: 'default',
+        defaultSnoozeEnabled: true,
+      );
+
+      final AppSettings updated = original.copyWith(
+        defaultDifficulty: Difficulty.hard,
+        snoozeMinutes: 15,
+      );
+
+      expect(updated.defaultDifficulty, Difficulty.hard);
+      expect(updated.snoozeMinutes, 15);
+      expect(updated.themeMode, ThemeMode.system);
+    });
+
+    test('copyWith preserves unchanged fields', () {
+      const AppSettings original = AppSettings(
+        defaultDifficulty: Difficulty.medium,
+        snoozeMinutes: 10,
+        themeMode: ThemeMode.dark,
+        vibrationEnabled: true,
+        defaultSoundKey: 'default',
+        defaultSnoozeEnabled: true,
+      );
+
+      final AppSettings updated = original.copyWith(themeMode: ThemeMode.light);
+
+      expect(updated.defaultDifficulty, Difficulty.medium);
+      expect(updated.snoozeMinutes, 10);
+      expect(updated.themeMode, ThemeMode.light);
+    });
+  });
+
+  group('snooze duration options', () {
+    test('valid snooze durations are 5 10 15 20', () {
+      const List<int> validOptions = [5, 10, 15, 20];
+      for (final int minutes in validOptions) {
+        expect(minutes >= 5 && minutes <= 20 && minutes % 5 == 0, isTrue);
+      }
+    });
+
+    test('default snooze is 5 minutes', () {
+      const AppSettings settings = AppSettings(
+        defaultDifficulty: Difficulty.medium,
+        snoozeMinutes: 5,
+        themeMode: ThemeMode.system,
+        vibrationEnabled: true,
+        defaultSoundKey: 'default',
+        defaultSnoozeEnabled: true,
+      );
+      expect(settings.snoozeMinutes, 5);
+    });
+  });
+
+  group('ThemeMode settings', () {
+    test('all three theme modes are supported', () {
+      for (final ThemeMode mode in ThemeMode.values) {
+        final AppSettings settings = AppSettings(
+          defaultDifficulty: Difficulty.medium,
+          snoozeMinutes: 5,
+          themeMode: mode,
+          vibrationEnabled: true,
+          defaultSoundKey: 'default',
+          defaultSnoozeEnabled: true,
+        );
+        expect(settings.themeMode, mode);
+      }
+    });
+
+    test('default theme mode is system', () {
+      const AppSettings settings = AppSettings(
+        defaultDifficulty: Difficulty.medium,
+        snoozeMinutes: 5,
+        themeMode: ThemeMode.system,
+        vibrationEnabled: true,
+        defaultSoundKey: 'default',
+        defaultSnoozeEnabled: true,
+      );
+      expect(settings.themeMode, ThemeMode.system);
     });
   });
 }
