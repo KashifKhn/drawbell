@@ -7,6 +7,7 @@ import '../../providers/alarm_provider.dart';
 import 'widgets/accuracy_card.dart';
 import 'widgets/category_section.dart';
 import 'widgets/consistency_chart.dart';
+import 'widgets/daily_alarm_stats_card.dart';
 import 'widgets/gamification_card.dart';
 import 'widgets/streak_card.dart';
 import 'widgets/summary_row.dart';
@@ -110,6 +111,8 @@ class StatsScreen extends ConsumerWidget {
           children: [
             const WeekDaySelector(),
             const SizedBox(height: 20),
+            DailyAlarmStatsCard(allStats: stats),
+            const SizedBox(height: 16),
             SummaryRow(allStats: stats, lastWeekStats: lastWeek),
             const SizedBox(height: 16),
             StreakCard(allStats: stats),
