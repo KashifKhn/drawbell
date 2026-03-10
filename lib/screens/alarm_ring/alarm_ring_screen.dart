@@ -351,6 +351,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
 
     final bool canInteract = !_isDismissed && !_isClassifying;
     final bool canDraw = !_isDismissed;
+    final bool showSnooze = _attempts >= snoozeUnlockAttempts;
 
     return PopScope(
       canPop: widget.isTestMode,
@@ -439,14 +440,16 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                         icon: const Icon(Icons.close, size: 18),
                         label: const Text('Close Test'),
                       )
-                    else
+                    else if (showSnooze)
                       TextButton.icon(
                         onPressed: canInteract ? _snooze : null,
                         icon: const Icon(Icons.snooze, size: 18),
                         label: Text(
                           'Snooze (${ref.watch(settingsProvider.select((AppSettings s) => s.snoozeMinutes))} min)',
                         ),
-                      ),
+                      )
+                    else
+                      const SizedBox(height: 40),
                     const SizedBox(height: 16),
                   ],
                 ),

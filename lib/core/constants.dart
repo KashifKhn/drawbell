@@ -41,6 +41,7 @@ const double canvasStrokeWidth = 4.0;
 const double canvasBorderRadius = 16.0;
 const Duration idleTimeout = Duration(seconds: 30);
 const Duration snoozeDuration = Duration(minutes: 5);
+const int snoozeUnlockAttempts = 5;
 
 enum AlarmSound {
   defaultTone,
