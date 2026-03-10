@@ -135,7 +135,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   }
 
   Future<void> _toggleHint() async {
-    if (_isLoadingHint || _isDismissed) return;
+    if (_isLoadingHint || _isDismissed || _isClassifying) return;
 
     final HintMode next = switch (_hintMode) {
       HintMode.none => HintMode.thumbnail,
@@ -341,6 +341,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
+    final EdgeInsets viewPadding = MediaQuery.viewPaddingOf(context);
 
     if (_isLoading) {
       return Scaffold(
@@ -357,106 +358,100 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       canPop: widget.isTestMode,
       child: Scaffold(
         backgroundColor: colors.surface,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 24,
-                ),
-                child: Column(
-                  children: [
-                    PromptHeader(
-                      category: _prompt,
-                      onChangeDoodle: canInteract ? _changeDoodle : null,
-                      onToggleHint: canInteract ? _toggleHint : null,
-                      hintMode: _hintMode,
-                    ),
-                    const SizedBox(height: 24),
-                    DrawingCanvas(
-                      strokes: _strokes,
-                      currentStroke: _currentStroke,
-                      hintStrokes: _hintMode == HintMode.trace
-                          ? _hintStrokes
-                          : null,
-                      hintThumbnail:
-                          _hintMode == HintMode.thumbnail &&
-                              _hintStrokes != null
-                          ? HintThumbnail(strokes: _hintStrokes!)
-                          : null,
-                      onPanStart: canDraw
-                          ? (DragStartDetails d) {
-                              _resetIdleTimer();
-                              setState(
-                                () => _currentStroke = [d.localPosition],
-                              );
-                            }
-                          : null,
-                      onPanUpdate: canDraw
-                          ? (DragUpdateDetails d) {
-                              setState(
-                                () => _currentStroke.add(d.localPosition),
-                              );
-                            }
-                          : null,
-                      onPanEnd: canDraw
-                          ? (_) {
-                              if (_currentStroke.isNotEmpty) {
-                                setState(() {
-                                  _strokes.add(List.from(_currentStroke));
-                                  _currentStroke.clear();
-                                });
-                                _classify();
-                              }
-                            }
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    ResultFeedback(isCorrect: _lastResult),
-                    const SizedBox(height: 8),
-                    AttemptCounter(attempts: _attempts),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: canInteract ? _undo : null,
-                          icon: const Icon(Icons.undo, size: 18),
-                          label: const Text('Undo'),
-                        ),
-                        const SizedBox(width: 16),
-                        OutlinedButton.icon(
-                          onPressed: canInteract ? _clear : null,
-                          icon: const Icon(Icons.delete_outline, size: 18),
-                          label: const Text('Clear'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (widget.isTestMode)
-                      TextButton.icon(
-                        onPressed: canInteract ? _closeTest : null,
-                        icon: const Icon(Icons.close, size: 18),
-                        label: const Text('Close Test'),
-                      )
-                    else if (showSnooze)
-                      TextButton.icon(
-                        onPressed: canInteract ? _snooze : null,
-                        icon: const Icon(Icons.snooze, size: 18),
-                        label: Text(
-                          'Snooze (${ref.watch(settingsProvider.select((AppSettings s) => s.snoozeMinutes))} min)',
-                        ),
-                      )
-                    else
-                      const SizedBox(height: 40),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+        body: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                viewPadding.top + 24,
+                16,
+                viewPadding.bottom + 16,
               ),
-              if (_isDismissed) const SuccessOverlay(),
-            ],
-          ),
+              child: Column(
+                children: [
+                  PromptHeader(
+                    category: _prompt,
+                    onChangeDoodle: _changeDoodle,
+                    onToggleHint: _toggleHint,
+                    hintMode: _hintMode,
+                  ),
+                  const SizedBox(height: 24),
+                  DrawingCanvas(
+                    strokes: _strokes,
+                    currentStroke: _currentStroke,
+                    hintStrokes: _hintMode == HintMode.trace
+                        ? _hintStrokes
+                        : null,
+                    hintThumbnail:
+                        _hintMode == HintMode.thumbnail && _hintStrokes != null
+                        ? HintThumbnail(strokes: _hintStrokes!)
+                        : null,
+                    onPanStart: canDraw
+                        ? (DragStartDetails d) {
+                            _resetIdleTimer();
+                            setState(() => _currentStroke = [d.localPosition]);
+                          }
+                        : null,
+                    onPanUpdate: canDraw
+                        ? (DragUpdateDetails d) {
+                            setState(() => _currentStroke.add(d.localPosition));
+                          }
+                        : null,
+                    onPanEnd: canDraw
+                        ? (_) {
+                            if (_currentStroke.isNotEmpty) {
+                              setState(() {
+                                _strokes.add(List.from(_currentStroke));
+                                _currentStroke.clear();
+                              });
+                              _classify();
+                            }
+                          }
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  ResultFeedback(isCorrect: _lastResult),
+                  const SizedBox(height: 8),
+                  AttemptCounter(attempts: _attempts),
+                  const Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: canInteract ? _undo : null,
+                        icon: const Icon(Icons.undo, size: 18),
+                        label: const Text('Undo'),
+                      ),
+                      const SizedBox(width: 16),
+                      OutlinedButton.icon(
+                        onPressed: canInteract ? _clear : null,
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                        label: const Text('Clear'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  if (widget.isTestMode)
+                    TextButton.icon(
+                      onPressed: canInteract ? _closeTest : null,
+                      icon: const Icon(Icons.close, size: 18),
+                      label: const Text('Close Test'),
+                    )
+                  else if (showSnooze)
+                    TextButton.icon(
+                      onPressed: canInteract ? _snooze : null,
+                      icon: const Icon(Icons.snooze, size: 18),
+                      label: Text(
+                        'Snooze (${ref.watch(settingsProvider.select((AppSettings s) => s.snoozeMinutes))} min)',
+                      ),
+                    )
+                  else
+                    const SizedBox(height: 40),
+                ],
+              ),
+            ),
+            if (_isDismissed) const SuccessOverlay(),
+          ],
         ),
       ),
     );
