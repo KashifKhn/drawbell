@@ -53,3 +53,4 @@ flutter:
     - assets/sounds/
     - assets/quickdraw_model.tflite
     - assets/labels.txt
+    - assets/reference_drawings.json
