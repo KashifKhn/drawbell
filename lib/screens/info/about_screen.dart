@@ -43,6 +43,11 @@ class AboutScreen extends StatelessWidget {
                       value: 'Android',
                     ),
                     _InfoRow(
+                      icon: Icons.language_outlined,
+                      label: 'Website',
+                      value: 'drawbell.kashifkhan.dev',
+                    ),
+                    _InfoRow(
                       icon: Icons.lock_outline,
                       label: 'Privacy',
                       value: 'No cloud · no accounts',

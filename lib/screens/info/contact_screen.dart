@@ -30,6 +30,20 @@ class ContactScreen extends StatelessWidget {
                 _ContactTile(
                   colors: colors,
                   textTheme: textTheme,
+                  icon: Icons.language_outlined,
+                  title: 'Website',
+                  value: 'drawbell.kashifkhan.dev',
+                  onTap: () => _copyToClipboard(
+                    context,
+                    'https://drawbell.kashifkhan.dev',
+                    'Website URL copied',
+                  ),
+                  trailing: const _CopyBadge(),
+                ),
+                Divider(height: 1, indent: 52, color: colors.outlineVariant),
+                _ContactTile(
+                  colors: colors,
+                  textTheme: textTheme,
                   icon: Icons.mail_outline_rounded,
                   title: 'Email',
                   value: 'drawbell@kashifkhan.dev',
