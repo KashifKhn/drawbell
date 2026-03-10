@@ -212,33 +212,56 @@ class _WakeUpBarChart extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        for (final int m in mins)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 1),
-                            child: Container(
-                              width: 24,
-                              height: max(4.0, ((m - minMinute) / range) * 40),
-                              decoration: BoxDecoration(
-                                color: isToday
-                                    ? AppTheme.brandOrange
-                                    : AppTheme.brandOrange.withAlpha(100),
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ),
-                        if (mins.isEmpty)
-                          Container(
-                            width: 24,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: colors.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                      ],
+                    child: SizedBox(
+                      width: 24,
+                      child: LayoutBuilder(
+                        builder:
+                            (BuildContext context, BoxConstraints constraints) {
+                              final double markerHeight = 4;
+                              final double maxBottom = max(
+                                0,
+                                constraints.maxHeight - markerHeight,
+                              );
+
+                              return Stack(
+                                alignment: Alignment.bottomCenter,
+                                children: [
+                                  if (mins.isEmpty)
+                                    Container(
+                                      width: 24,
+                                      height: markerHeight,
+                                      decoration: BoxDecoration(
+                                        color: colors.surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ),
+                                  for (final int m in mins)
+                                    Positioned(
+                                      bottom:
+                                          ((m - minMinute) / range).clamp(
+                                            0,
+                                            1,
+                                          ) *
+                                          maxBottom,
+                                      child: Container(
+                                        width: 24,
+                                        height: markerHeight,
+                                        decoration: BoxDecoration(
+                                          color: isToday
+                                              ? AppTheme.brandOrange
+                                              : AppTheme.brandOrange.withAlpha(
+                                                  100,
+                                                ),
+                                          borderRadius: BorderRadius.circular(
+                                            3,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              );
+                            },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 6),
