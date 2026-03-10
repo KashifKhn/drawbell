@@ -29,6 +29,7 @@ class AlarmRingScreen extends ConsumerStatefulWidget {
   final Difficulty difficulty;
   final List<String> categories;
   final String sound;
+  final bool usesNativeAlarmAudio;
   final bool isTestMode;
   final String? alarmId;
 
@@ -37,6 +38,7 @@ class AlarmRingScreen extends ConsumerStatefulWidget {
     required this.difficulty,
     this.categories = const [],
     this.sound = 'default',
+    this.usesNativeAlarmAudio = false,
     this.isTestMode = false,
     this.alarmId,
   });
@@ -82,7 +84,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     await _classifier.load();
     _pickPrompt();
     setState(() => _isLoading = false);
-    if (!widget.isTestMode) {
+    if (!widget.isTestMode && !widget.usesNativeAlarmAudio) {
       final bool vibrate = ref.read(settingsProvider).vibrationEnabled;
       _audio.startAlarm(sound: widget.sound, vibrate: vibrate);
     }

@@ -65,11 +65,15 @@ void _handleNotificationPayload(String payload) {
         'difficulty': difficulty,
         'categories': categories,
         'sound': sound,
+        'usesNativeAlarmAudio': true,
         if (alarmId != null) 'alarmId': alarmId,
       },
     );
   } on FormatException {
-    _router.push('/alarm/ring', extra: {'difficulty': Difficulty.medium});
+    _router.push(
+      '/alarm/ring',
+      extra: {'difficulty': Difficulty.medium, 'usesNativeAlarmAudio': true},
+    );
   }
 }
 

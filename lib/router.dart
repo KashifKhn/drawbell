@@ -56,12 +56,15 @@ GoRouter buildRouter({String initialLocation = '/'}) {
           final List<String> categories =
               extras['categories'] as List<String>? ?? const [];
           final String sound = extras['sound'] as String? ?? 'default';
+          final bool usesNativeAlarmAudio =
+              extras['usesNativeAlarmAudio'] as bool? ?? false;
           final bool isTestMode = extras['isTestMode'] as bool? ?? false;
           final String? alarmId = extras['alarmId'] as String?;
           return AlarmRingScreen(
             difficulty: difficulty,
             categories: categories,
             sound: sound,
+            usesNativeAlarmAudio: usesNativeAlarmAudio,
             isTestMode: isTestMode,
             alarmId: alarmId,
           );
