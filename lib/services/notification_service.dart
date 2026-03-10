@@ -7,6 +7,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'imported_sound_service.dart';
 import 'native_alarm_service.dart';
 
 final FlutterLocalNotificationsPlugin _plugin =
@@ -166,7 +167,7 @@ class NotificationService {
   }
 
   String _channelIdForSound(String sound) {
-    if (sound.startsWith('content://') || sound.startsWith('file://')) {
+    if (ImportedSoundService.isUriSound(sound)) {
       final int hash = _stableHash(sound);
       return 'drawbell_alarm_v3_$hash';
     }

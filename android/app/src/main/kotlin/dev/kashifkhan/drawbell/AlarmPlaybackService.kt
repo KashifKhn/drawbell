@@ -157,7 +157,11 @@ class AlarmPlaybackService : Service() {
     }
 
     private fun parseSoundUri(sound: String): Uri? {
-        if (sound.startsWith("content://") || sound.startsWith("file://")) {
+        if (
+            sound.startsWith("content://") ||
+                sound.startsWith("file://") ||
+                sound.startsWith("http")
+        ) {
             return Uri.parse(sound)
         }
         return null

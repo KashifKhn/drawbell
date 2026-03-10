@@ -10,6 +10,7 @@ import '../../models/alarm_model.dart';
 import '../../providers/alarm_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../services/classifier_service.dart';
+import '../../services/imported_sound_service.dart';
 import '../../services/ringtone_service.dart';
 import '../../theme.dart';
 import 'widgets/category_picker.dart';
@@ -415,9 +416,10 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
     final String labelValue = _labelController.text.isEmpty
         ? 'None'
         : _labelController.text;
-    final String soundValue = _sound.startsWith('content://')
-        ? (_ringtoneLabels[_sound] ?? 'Custom Sound')
-        : AlarmSound.fromKey(_sound).label;
+    final String soundValue = ImportedSoundService.labelFor(
+      _sound,
+      ringtoneLabels: _ringtoneLabels,
+    );
 
     return Card(
       child: Column(

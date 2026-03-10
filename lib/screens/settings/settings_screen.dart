@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants.dart';
 import '../../providers/alarm_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../services/imported_sound_service.dart';
 import '../../theme.dart';
 import '../alarm_editor/widgets/difficulty_selector.dart';
 import '../alarm_editor/widgets/sound_picker.dart';
@@ -19,9 +20,9 @@ class SettingsScreen extends ConsumerWidget {
     final TextTheme textTheme = Theme.of(context).textTheme;
     final AppSettings settings = ref.watch(settingsProvider);
 
-    final String soundLabel = settings.defaultSoundKey.startsWith('content://')
-        ? 'Custom'
-        : AlarmSound.fromKey(settings.defaultSoundKey).label;
+    final String soundLabel = ImportedSoundService.labelFor(
+      settings.defaultSoundKey,
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),

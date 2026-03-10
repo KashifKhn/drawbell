@@ -5,6 +5,7 @@ import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../core/constants.dart';
+import 'imported_sound_service.dart';
 
 class AudioService {
   final AudioPlayer _player = AudioPlayer();
@@ -30,9 +31,7 @@ class AudioService {
 
   Future<void> _loadAudio(String soundKey) async {
     try {
-      if (soundKey.startsWith('content://') ||
-          soundKey.startsWith('file://') ||
-          soundKey.startsWith('http')) {
+      if (ImportedSoundService.isUriSound(soundKey)) {
         await _player.setAudioSource(AudioSource.uri(Uri.parse(soundKey)));
       } else {
         final AlarmSound alarmSound = AlarmSound.fromKey(soundKey);
