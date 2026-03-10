@@ -1,0 +1,23 @@
+{
+  "name": "drawbell-web",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^3.1.9",
+    "@astrojs/sitemap": "3.2.1",
+    "@astrojs/tailwind": "^5.1.2",
+    "@fontsource/dm-sans": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
+    "@fontsource/syne": "^5.2.7",
+    "@vercel/analytics": "^1.3.2",
+    "astro": "^4.15.9",
+    "tailwindcss": "^3.4.14"
+  }
+}
