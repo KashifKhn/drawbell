@@ -1,0 +1,41 @@
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0C0B0A;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2E2B28;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #D94A09;
+  }
+
+  /* Focus outline consistent with brand */
+  :focus-visible {
+    outline: 2px solid #D94A09;
+    outline-offset: 2px;
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(217, 74, 9, 0.25);
+    color: #F0EDE8;
+  }
+}
