@@ -8,6 +8,7 @@ import '../../core/constants.dart';
 import '../../core/utils.dart';
 import '../../models/alarm_model.dart';
 import '../../providers/alarm_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../services/classifier_service.dart';
 import '../../services/ringtone_service.dart';
 import '../../theme.dart';
@@ -50,11 +51,13 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
 
     _time = existing?.time ?? TimeOfDay.now();
     _repeatDays = List<int>.from(existing?.repeatDays ?? []);
-    _difficulty = existing?.difficulty ?? Difficulty.medium;
+    _difficulty =
+        existing?.difficulty ?? ref.read(settingsProvider).defaultDifficulty;
     _labelController = TextEditingController(text: existing?.label ?? '');
     _categories = List<String>.from(existing?.categories ?? []);
-    _sound = existing?.sound ?? 'default';
-    _snooze = existing?.snooze ?? true;
+    _sound = existing?.sound ?? ref.read(settingsProvider).defaultSoundKey;
+    _snooze =
+        existing?.snooze ?? ref.read(settingsProvider).defaultSnoozeEnabled;
     _scheduledDate = existing?.scheduledDate;
     _loadLabels();
     _loadRingtoneLabels();

@@ -13,7 +13,10 @@ class AudioService {
 
   bool get isPlaying => _isPlaying;
 
-  Future<void> startAlarm({String sound = 'default'}) async {
+  Future<void> startAlarm({
+    String sound = 'default',
+    bool vibrate = true,
+  }) async {
     await WakelockPlus.enable();
     await _loadAudio(sound);
     if (_audioAvailable) {
@@ -22,7 +25,7 @@ class AudioService {
       await _player.play();
     }
     _isPlaying = true;
-    _startVibration();
+    if (vibrate) _startVibration();
   }
 
   Future<void> _loadAudio(String soundKey) async {

@@ -12,6 +12,7 @@ import '../../models/alarm_model.dart';
 import '../../models/dismissal_record.dart';
 import '../../models/drawing_result.dart';
 import '../../providers/alarm_provider.dart';
+import '../../providers/settings_provider.dart';
 import '../../services/audio_service.dart';
 import '../../services/classifier_service.dart';
 import '../../services/notification_service.dart';
@@ -75,7 +76,8 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     _pickPrompt();
     setState(() => _isLoading = false);
     if (!widget.isTestMode) {
-      _audio.startAlarm(sound: widget.sound);
+      final bool vibrate = ref.read(settingsProvider).vibrationEnabled;
+      _audio.startAlarm(sound: widget.sound, vibrate: vibrate);
     }
     _resetIdleTimer();
   }
@@ -247,7 +249,10 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     _idleTimer?.cancel();
     _audio.stopAlarm();
 
-    final DateTime snoozeTime = DateTime.now().add(snoozeDuration);
+    final int snoozeMinutes = ref.read(settingsProvider).snoozeMinutes;
+    final DateTime snoozeTime = DateTime.now().add(
+      Duration(minutes: snoozeMinutes),
+    );
     final String payload = '{"difficulty":${widget.difficulty.index}}';
 
     await NotificationService().scheduleAlarm(
@@ -373,7 +378,9 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
                       TextButton.icon(
                         onPressed: canInteract ? _snooze : null,
                         icon: const Icon(Icons.snooze, size: 18),
-                        label: const Text('Snooze (5 min)'),
+                        label: Text(
+                          'Snooze (${ref.watch(settingsProvider.select((AppSettings s) => s.snoozeMinutes))} min)',
+                        ),
                       ),
                     const SizedBox(height: 16),
                   ],

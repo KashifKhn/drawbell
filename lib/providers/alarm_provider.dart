@@ -91,4 +91,9 @@ class DismissalStatsNotifier extends StateNotifier<List<DismissalRecord>> {
     await _storage.addDismissal(record);
     state = _storage.loadStats();
   }
+
+  Future<void> clearStats() async {
+    await _storage.clearStats();
+    state = [];
+  }
 }

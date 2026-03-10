@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import 'core/constants.dart';
 import 'providers/alarm_provider.dart';
+import 'providers/settings_provider.dart';
 import 'router.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
@@ -87,11 +88,16 @@ class _DrawBellAppState extends ConsumerState<DrawBellApp> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeMode themeMode = ref.watch(
+      settingsProvider.select((AppSettings s) => s.themeMode),
+    );
+
     return MaterialApp.router(
       title: 'DrawBell',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
+      themeMode: themeMode,
       routerConfig: _router,
     );
   }
