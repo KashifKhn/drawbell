@@ -27,8 +27,12 @@ enum Difficulty {
   };
 }
 
+enum HintMode { none, thumbnail, trace }
+
 const String modelAssetPath = 'assets/quickdraw_model.tflite';
 const String labelsAssetPath = 'assets/labels.txt';
+const String hintDrawingsAssetPath = 'assets/reference_drawings.json';
+const double hintThumbnailSize = 88.0;
 const int modelInputSize = 28;
 const int categoryCount = 345;
 const double canvasSize = 360.0;
