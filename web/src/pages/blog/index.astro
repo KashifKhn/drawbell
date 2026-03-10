@@ -8,8 +8,6 @@ import { getCollection } from 'astro:content';
 const allPosts = (await getCollection('blog'))
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
-
-const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].sort();
 ---
 
 <BaseLayout
@@ -28,23 +26,9 @@ const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].sort();
           From the blog.
         </h1>
         <p class="text-lg text-[#78716C] dark:text-[#9B9189] max-w-xl">
-          Tips, research, and behind-the-scenes on building an AI-powered alarm app.
+          Sleep science, habit research, and morning strategies — with a drawing alarm that actually wakes you up.
         </p>
       </div>
-
-      <!-- Tag filter pills -->
-      {allTags.length > 0 && (
-        <div class="flex flex-wrap gap-2 mb-12">
-          {allTags.map((tag) => (
-            <span class="text-xs font-mono px-3 py-1.5 rounded-full
-                         border border-[#DDD5CB] dark:border-[#2E2B28]
-                         text-[#78716C] dark:text-[#9B9189]
-                         bg-transparent">
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
 
       <!-- Posts grid -->
       {allPosts.length > 0 ? (
@@ -62,7 +46,7 @@ const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].sort();
         </div>
       ) : (
         <div class="text-center py-24">
-          <p class="text-[#9B9189] text-lg">No posts yet — check back soon.</p>
+          <p class="text-[#78716C] dark:text-[#9B9189] text-lg">No posts yet — check back soon.</p>
         </div>
       )}
     </div>
