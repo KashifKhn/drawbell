@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import '../../core/constants.dart';
 import '../../models/drawing_result.dart';
 import '../../services/classifier_service.dart';
+import '../../services/hint_service.dart';
 import '../../theme.dart';
 import '../alarm_ring/widgets/drawing_canvas.dart';
+import '../alarm_ring/widgets/hint_thumbnail.dart';
 import 'widgets/category_picker_sheet.dart';
 import 'widgets/practice_result_overlay.dart';
 import 'widgets/prediction_tile.dart';
@@ -35,6 +37,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
   int _attempts = 0;
   DateTime _startTime = DateTime.now();
 
+  HintMode _hintMode = HintMode.none;
+  List<List<Offset>>? _hintStrokes;
+  bool _isLoadingHint = false;
+  bool _pendingClassify = false;
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +54,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   Future<void> _classify() async {
-    if (_strokes.isEmpty || _isClassifying) return;
+    if (_strokes.isEmpty) return;
+    if (_isClassifying) {
+      _pendingClassify = true;
+      return;
+    }
     setState(() => _isClassifying = true);
 
     try {
@@ -91,7 +102,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
         }
       }
     } finally {
-      if (mounted) setState(() => _isClassifying = false);
+      if (mounted) {
+        setState(() => _isClassifying = false);
+        if (_pendingClassify) {
+          _pendingClassify = false;
+          _classify();
+        }
+      }
     }
   }
 
@@ -100,6 +117,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _strokes.clear();
       _currentStroke.clear();
       _predictions.clear();
+      _pendingClassify = false;
     });
   }
 
@@ -139,6 +157,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _lastConfidence = 0.0;
       _attempts = 0;
       _startTime = DateTime.now();
+      _pendingClassify = false;
     });
   }
 
@@ -161,6 +180,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _lastConfidence = 0.0;
       _attempts = 0;
       _startTime = DateTime.now();
+      _hintMode = HintMode.none;
+      _hintStrokes = null;
+      _pendingClassify = false;
     });
   }
 
@@ -192,7 +214,40 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _lastConfidence = 0.0;
       _attempts = 0;
       _startTime = DateTime.now();
+      _hintMode = HintMode.none;
+      _hintStrokes = null;
+      _pendingClassify = false;
     });
+  }
+
+  Future<void> _toggleHint() async {
+    if (_isLoadingHint || _targetCategory == null) return;
+
+    final HintMode next = switch (_hintMode) {
+      HintMode.none => HintMode.thumbnail,
+      HintMode.thumbnail => HintMode.trace,
+      HintMode.trace => HintMode.none,
+    };
+
+    if (next == HintMode.none) {
+      setState(() => _hintMode = HintMode.none);
+      return;
+    }
+
+    if (_hintStrokes == null) {
+      setState(() => _isLoadingHint = true);
+      final List<List<Offset>>? strokes = await HintService.getStrokes(
+        _targetCategory!,
+        canvasSize,
+      );
+      if (!mounted) return;
+      setState(() {
+        _hintStrokes = strokes;
+        _isLoadingHint = false;
+      });
+    }
+
+    setState(() => _hintMode = _hintStrokes != null ? next : HintMode.none);
   }
 
   @override
@@ -272,6 +327,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 child: DrawingCanvas(
                   strokes: _strokes,
                   currentStroke: _currentStroke,
+                  hintStrokes: _hintMode == HintMode.trace
+                      ? _hintStrokes
+                      : null,
+                  hintThumbnail:
+                      _hintMode == HintMode.thumbnail && _hintStrokes != null
+                      ? HintThumbnail(strokes: _hintStrokes!)
+                      : null,
                   onPanStart: (DragStartDetails d) {
                     setState(() => _currentStroke = [d.localPosition]);
                   },
@@ -330,8 +392,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
             onTap: () {
               setState(() {
                 _targetCategory = null;
-                _clear();
+                _hintMode = HintMode.none;
+                _hintStrokes = null;
               });
+              _clear();
             },
           ),
         ),
@@ -401,6 +465,30 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 size: 20,
               ),
               tooltip: 'Random category',
+            ),
+            IconButton(
+              onPressed: _isLoadingHint ? null : _toggleHint,
+              icon: _isLoadingHint
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Icon(
+                      _hintMode == HintMode.none
+                          ? Icons.lightbulb_outline_rounded
+                          : _hintMode == HintMode.thumbnail
+                          ? Icons.lightbulb_rounded
+                          : Icons.gesture_rounded,
+                      color: _hintMode == HintMode.none
+                          ? colors.onSurfaceVariant
+                          : AppTheme.brandOrange,
+                      size: 20,
+                    ),
+              tooltip: _hintMode == HintMode.none
+                  ? 'Show hint'
+                  : _hintMode == HintMode.thumbnail
+                  ? 'Switch to trace'
+                  : 'Hide hint',
             ),
           ],
         ),
