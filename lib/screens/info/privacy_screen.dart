@@ -68,8 +68,9 @@ class PrivacyScreen extends StatelessWidget {
                 'DrawBell requests the following permissions:\n\n'
                 '• POST_NOTIFICATIONS — to deliver alarm notifications\n'
                 '• SCHEDULE_EXACT_ALARM — to fire alarms at precise times\n'
-                '• READ_MEDIA_AUDIO — to list device ringtones (optional)\n'
                 '• VIBRATE — to vibrate on alarm\n\n'
+                'If you import a custom alarm sound, Android shows its own '
+                'file picker so no media-storage permission is needed.\n\n'
                 'No permission is used to collect or transmit data. All '
                 'permissions are used solely for core alarm functionality.',
           ),

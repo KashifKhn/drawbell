@@ -26,7 +26,6 @@ class _SoundPickerState extends State<SoundPicker> {
   List<ImportedSoundInfo> _importedSounds = <ImportedSoundInfo>[];
   List<RingtoneInfo>? _ringtones;
   bool _loadError = false;
-  bool _permissionDenied = false;
   bool _isImporting = false;
   String? _previewingSound;
   final AudioPlayer _previewPlayer = AudioPlayer();
@@ -57,22 +56,8 @@ class _SoundPickerState extends State<SoundPicker> {
   }
 
   Future<void> _loadRingtones() async {
-    List<RingtoneInfo> ringtones = await RingtoneService.getAlarmRingtones();
-
-    if (ringtones.isEmpty) {
-      final String permResult = await RingtoneService.requestAudioPermission();
-      if (permResult == 'granted') {
-        ringtones = await RingtoneService.getAlarmRingtones();
-      } else {
-        if (mounted) {
-          setState(() {
-            _ringtones = [];
-            _permissionDenied = true;
-          });
-        }
-        return;
-      }
-    }
+    final List<RingtoneInfo> ringtones =
+        await RingtoneService.getAlarmRingtones();
 
     if (mounted) {
       setState(() {
@@ -222,26 +207,6 @@ class _SoundPickerState extends State<SoundPicker> {
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Center(child: CircularProgressIndicator()),
-          )
-        else if (_permissionDenied)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Column(
-              children: [
-                Text(
-                  'Audio permission is required to list device alarm sounds.',
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                FilledButton.tonal(
-                  onPressed: RingtoneService.openAppSettings,
-                  child: const Text('Open Settings'),
-                ),
-              ],
-            ),
           )
         else if (_loadError || (_ringtones?.isEmpty ?? true))
           Padding(

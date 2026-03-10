@@ -30,25 +30,4 @@ class RingtoneService {
       return [];
     }
   }
-
-  static Future<String> requestAudioPermission() async {
-    try {
-      final String result =
-          await _channel.invokeMethod<String>('requestAudioPermission') ??
-          'denied';
-      return result;
-    } catch (_) {
-      return 'denied';
-    }
-  }
-
-  static Future<bool> openAppSettings() async {
-    try {
-      final bool result =
-          await _channel.invokeMethod<bool>('openAppSettings') ?? false;
-      return result;
-    } catch (_) {
-      return false;
-    }
-  }
 }
