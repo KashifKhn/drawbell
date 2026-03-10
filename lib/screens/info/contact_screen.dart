@@ -46,10 +46,10 @@ class ContactScreen extends StatelessWidget {
                   textTheme: textTheme,
                   icon: Icons.mail_outline_rounded,
                   title: 'Email',
-                  value: 'drawbell@kashifkhan.dev',
+                  value: 'hi@kashifkhan.dev',
                   onTap: () => _copyToClipboard(
                     context,
-                    'drawbell@kashifkhan.dev',
+                    'hi@kashifkhan.dev',
                     'Email address copied',
                   ),
                   trailing: const _CopyBadge(),
