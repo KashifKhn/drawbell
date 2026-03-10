@@ -67,7 +67,7 @@ const blogPostSchema = {
 
   <Header />
 
-  <main class="min-h-screen bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5] pt-28 pb-24">
+  <main class="min-h-screen bg-[#FAF8F5] dark:bg-[#0C0B0A] pt-28 pb-24">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
 
       <!-- Back link -->
@@ -94,14 +94,14 @@ const blogPostSchema = {
 
       <!-- Title -->
       <h1 class="font-display font-extrabold text-4xl sm:text-5xl leading-[1.1] mb-6
-                 text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                 text-[#1C1917] dark:text-[#F0EDE8]">
         {title}
       </h1>
 
       <!-- Meta -->
       <div class="flex flex-wrap items-center gap-4 mb-12
-                  text-sm font-mono text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
-                  border-b border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB] pb-8">
+                  text-sm font-mono text-[#78716C] dark:text-[#9B9189]
+                  border-b border-[#DDD5CB] dark:border-[#2E2B28] pb-8">
         <span class="flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -129,7 +129,7 @@ const blogPostSchema = {
       </article>
 
       <!-- Bottom nav -->
-      <div class="mt-16 pt-8 border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+      <div class="mt-16 pt-8 border-t border-[#DDD5CB] dark:border-[#2E2B28]
                   flex items-center justify-between">
         <a
           href="/blog"
@@ -169,7 +169,7 @@ const blogPostSchema = {
   }
 
   .prose-drawbell h2 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-weight: 800;
     font-size: 1.75rem;
     line-height: 1.2;
@@ -180,7 +180,7 @@ const blogPostSchema = {
   :root:not(.dark) .prose-drawbell h2 { color: #1C1917; }
 
   .prose-drawbell h3 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 1.25rem;
     margin-top: 2rem;

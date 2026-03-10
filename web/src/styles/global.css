@@ -38,4 +38,17 @@
     background: rgba(217, 74, 9, 0.25);
     color: #F0EDE8;
   }
+
+  /* Scrolled header */
+  #site-header.is-scrolled {
+    background: rgba(250, 248, 245, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #DDD5CB;
+  }
+
+  html.dark #site-header.is-scrolled {
+    background: rgba(12, 11, 10, 0.9);
+    border-bottom-color: #2E2B28;
+  }
 }

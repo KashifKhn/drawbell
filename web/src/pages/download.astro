@@ -10,16 +10,16 @@ import Footer from '../components/Footer.astro';
 >
   <Header />
 
-  <main class="min-h-screen bg-[#0C0B0A] pt-28 pb-24">
+  <main class="min-h-screen bg-[#FAF8F5] dark:bg-[#0C0B0A] pt-28 pb-24">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
 
       <!-- Page header -->
       <div class="mb-12 text-center">
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">Android</p>
-        <h1 class="font-display font-bold text-5xl sm:text-6xl text-[#F0EDE8] mb-4">
+        <h1 class="font-display font-bold text-5xl sm:text-6xl text-[#1C1917] dark:text-[#F0EDE8] mb-4">
           Download DrawBell
         </h1>
-        <p class="text-[#9B9189] text-lg max-w-md mx-auto">
+        <p class="text-[#78716C] dark:text-[#9B9189] text-lg max-w-md mx-auto">
           Free. No account. No internet. Sideload the APK directly onto your Android device.
         </p>
       </div>
@@ -37,13 +37,13 @@ import Footer from '../components/Footer.astro';
         <!-- Loading skeleton -->
         <div id="latest-loading" class="relative space-y-4 animate-pulse">
           <div class="flex items-center gap-3">
-            <div class="h-6 w-24 bg-[#2E2B28] rounded-full"></div>
-            <div class="h-4 w-20 bg-[#2E2B28] rounded-full"></div>
+            <div class="h-6 w-24 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
+            <div class="h-4 w-20 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
           </div>
-          <div class="h-8 w-40 bg-[#2E2B28] rounded-lg"></div>
+          <div class="h-8 w-40 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-lg"></div>
           <div class="flex gap-3">
-            <div class="h-12 w-52 bg-[#2E2B28] rounded-full"></div>
-            <div class="h-12 w-44 bg-[#2E2B28] rounded-full"></div>
+            <div class="h-12 w-52 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
+            <div class="h-12 w-44 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
           </div>
         </div>
 
@@ -57,24 +57,24 @@ import Footer from '../components/Footer.astro';
               </svg>
               Latest
             </span>
-            <span id="latest-version" class="text-[#9B9189] font-mono text-sm"></span>
-            <span id="latest-date" class="text-[#9B9189] text-xs"></span>
+            <span id="latest-version" class="text-[#78716C] dark:text-[#9B9189] font-mono text-sm"></span>
+            <span id="latest-date" class="text-[#78716C] dark:text-[#9B9189] text-xs"></span>
           </div>
-          <h2 id="latest-name" class="font-display font-bold text-2xl text-[#F0EDE8] mb-6"></h2>
+          <h2 id="latest-name" class="font-display font-bold text-2xl text-[#1C1917] dark:text-[#F0EDE8] mb-6"></h2>
 
           <!-- Primary download buttons -->
           <div id="latest-buttons" class="flex flex-wrap gap-3 mb-6"></div>
 
           <!-- Install tip -->
-          <p class="text-xs text-[#9B9189]">
+          <p class="text-xs text-[#78716C] dark:text-[#9B9189]">
             Not sure which to pick?
-            <strong class="text-[#F0EDE8]">arm64 works on virtually all phones made after 2017.</strong>
+            <strong class="text-[#1C1917] dark:text-[#F0EDE8] font-medium">arm64 works on virtually all phones made after 2017.</strong>
           </p>
         </div>
 
         <!-- Error state -->
         <div id="latest-error" class="relative hidden text-center py-4">
-          <p class="text-[#9B9189] mb-4">Couldn't load releases. Check directly on GitHub.</p>
+          <p class="text-[#78716C] dark:text-[#9B9189] mb-4">Couldn't load releases. Check directly on GitHub.</p>
           <a
             href="https://github.com/KashifKhn/drawbell/releases/latest"
             target="_blank"
@@ -89,8 +89,8 @@ import Footer from '../components/Footer.astro';
       </div>
 
       <!-- Install instructions -->
-      <div class="rounded-2xl border border-[#2E2B28] bg-[#141210] p-6 mb-12">
-        <h3 class="font-display font-bold text-[#F0EDE8] text-base mb-4">How to install</h3>
+      <div class="rounded-2xl border border-[#DDD5CB] dark:border-[#2E2B28] bg-white dark:bg-[#141210] p-6 mb-12">
+        <h3 class="font-display font-bold text-[#1C1917] dark:text-[#F0EDE8] text-base mb-4">How to install</h3>
         <ol class="space-y-3">
           {[
             ['Download', 'Tap the APK button above to download on your Android phone.'],
@@ -102,8 +102,8 @@ import Footer from '../components/Footer.astro';
               <span class="shrink-0 w-6 h-6 rounded-full bg-brand/15 border border-brand/30
                            text-brand text-xs font-mono font-bold
                            flex items-center justify-center">{i + 1}</span>
-              <span class="text-sm text-[#9B9189]">
-                <strong class="text-[#F0EDE8] font-medium">{step} — </strong>{desc}
+              <span class="text-sm text-[#78716C] dark:text-[#9B9189]">
+                <strong class="text-[#1C1917] dark:text-[#F0EDE8] font-medium">{step} — </strong>{desc}
               </span>
             </li>
           ))}
@@ -112,7 +112,7 @@ import Footer from '../components/Footer.astro';
 
       <!-- All releases -->
       <div>
-        <h2 class="font-display font-bold text-[#F0EDE8] text-xl mb-6 flex items-center gap-3">
+        <h2 class="font-display font-bold text-[#1C1917] dark:text-[#F0EDE8] text-xl mb-6 flex items-center gap-3">
           All Releases
           <a
             href="https://github.com/KashifKhn/drawbell/releases"
@@ -127,14 +127,14 @@ import Footer from '../components/Footer.astro';
         <!-- Loading skeleton for releases list -->
         <div id="releases-loading" class="space-y-3 animate-pulse">
           {[1,2].map(() => (
-            <div class="rounded-xl border border-[#2E2B28] bg-[#141210] p-5">
+            <div class="rounded-xl border border-[#DDD5CB] dark:border-[#2E2B28] bg-white dark:bg-[#141210] p-5">
               <div class="flex items-center justify-between mb-3">
-                <div class="h-5 w-32 bg-[#2E2B28] rounded-full"></div>
-                <div class="h-4 w-20 bg-[#2E2B28] rounded-full"></div>
+                <div class="h-5 w-32 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
+                <div class="h-4 w-20 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
               </div>
               <div class="flex gap-2">
-                <div class="h-9 w-40 bg-[#2E2B28] rounded-full"></div>
-                <div class="h-9 w-36 bg-[#2E2B28] rounded-full"></div>
+                <div class="h-9 w-40 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
+                <div class="h-9 w-36 bg-[#DDD5CB] dark:bg-[#2E2B28] rounded-full"></div>
               </div>
             </div>
           ))}
@@ -143,7 +143,7 @@ import Footer from '../components/Footer.astro';
         <!-- Populated releases list -->
         <div id="releases-list" class="space-y-3 hidden"></div>
 
-        <div id="releases-error" class="hidden text-center py-8 text-[#9B9189] text-sm">
+        <div id="releases-error" class="hidden text-center py-8 text-[#78716C] dark:text-[#9B9189] text-sm">
           Failed to load releases.
           <a href="https://github.com/KashifKhn/drawbell/releases" target="_blank"
              rel="noopener noreferrer" class="text-brand hover:underline ml-1">
@@ -226,7 +226,7 @@ import Footer from '../components/Footer.astro';
                  focus-visible:ring-brand focus-visible:ring-offset-2
                  ${isArm64
                    ? 'bg-brand text-white hover:bg-[#F05A1A] shadow-[0_0_24px_rgba(217,74,9,0.35)] hover:shadow-[0_0_36px_rgba(217,74,9,0.5)]'
-                   : 'border border-[#2E2B28] text-[#9B9189] hover:border-brand/40 hover:text-[#F0EDE8]'
+                   : 'border border-[#DDD5CB] dark:border-[#2E2B28] text-[#78716C] dark:text-[#9B9189] hover:border-brand/40 hover:text-[#1C1917] dark:hover:text-[#F0EDE8]'
                  }"
         >
           <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -247,7 +247,7 @@ import Footer from '../components/Footer.astro';
                border transition-colors duration-200
                ${isArm64
                  ? 'border-brand/40 text-brand hover:bg-brand/10'
-                 : 'border-[#2E2B28] text-[#9B9189] hover:border-[#4E4B48] hover:text-[#F0EDE8]'
+                  : 'border-[#DDD5CB] dark:border-[#2E2B28] text-[#78716C] dark:text-[#9B9189] hover:border-[#4E4B48] hover:text-[#1C1917] dark:hover:text-[#F0EDE8]'
                }"
       >
         <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -262,18 +262,18 @@ import Footer from '../components/Footer.astro';
     const buttons = apks.map((a) => buildDownloadButton(a, false)).join('');
 
     return `
-      <div class="rounded-xl border ${isLatest ? 'border-brand/20 bg-brand/5' : 'border-[#2E2B28] bg-[#141210]'} p-5">
+      <div class="rounded-xl border ${isLatest ? 'border-brand/20 bg-brand/5' : 'border-[#DDD5CB] dark:border-[#2E2B28] bg-white dark:bg-[#141210]'} p-5">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div class="flex items-center gap-2.5">
             ${isLatest ? `<span class="text-xs font-mono bg-brand text-white px-2.5 py-0.5 rounded-full">Latest</span>` : ''}
-            <span class="font-display font-bold text-[#F0EDE8]">${release.name}</span>
-            <span class="font-mono text-xs text-[#9B9189]">${release.tag_name}</span>
+            <span class="font-display font-bold text-[#1C1917] dark:text-[#F0EDE8]">${release.name}</span>
+            <span class="font-mono text-xs text-[#78716C] dark:text-[#9B9189]">${release.tag_name}</span>
           </div>
-          <span class="text-xs text-[#9B9189]">${formatDate(release.published_at)}</span>
+          <span class="text-xs text-[#78716C] dark:text-[#9B9189]">${formatDate(release.published_at)}</span>
         </div>
         ${apks.length > 0
           ? `<div class="flex flex-wrap gap-2">${buttons}</div>`
-          : `<p class="text-xs text-[#9B9189]">No APK assets in this release.</p>`
+          : `<p class="text-xs text-[#78716C] dark:text-[#9B9189]">No APK assets in this release.</p>`
         }
       </div>`;
   }

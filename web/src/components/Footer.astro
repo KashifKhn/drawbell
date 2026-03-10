@@ -18,8 +18,8 @@ const links = {
 };
 ---
 <footer class="
-  border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-  bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#F2EDE6]
+  border-t border-[#DDD5CB] dark:border-[#2E2B28]
+  bg-[#F2EDE6] dark:bg-[#0C0B0A]
   pt-16 pb-8
 ">
   <div class="max-w-6xl mx-auto px-4 sm:px-6">
@@ -30,7 +30,7 @@ const links = {
         <a href="/" aria-label="DrawBell home" class="inline-block mb-4">
           <img src="/favicon.png" alt="DrawBell" class="h-9 w-auto" />
         </a>
-        <p class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C] leading-relaxed max-w-xs">
+        <p class="text-sm text-[#78716C] dark:text-[#9B9189] leading-relaxed max-w-xs">
           The alarm that makes you prove you're awake. On-device AI. Zero data collected. Android-first.
         </p>
         <div class="mt-6 flex items-center gap-2">
@@ -51,7 +51,7 @@ const links = {
             <li>
               <a
                 href={href}
-                class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+                class="text-sm text-[#78716C] dark:text-[#9B9189]
                        hover:text-brand dark:hover:text-brand transition-colors duration-200"
               >{label}</a>
             </li>
@@ -69,7 +69,7 @@ const links = {
                 href={href}
                 target={external ? '_blank' : undefined}
                 rel={external ? 'noopener noreferrer' : undefined}
-                class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+                class="text-sm text-[#78716C] dark:text-[#9B9189]
                        hover:text-brand dark:hover:text-brand transition-colors duration-200
                        inline-flex items-center gap-1"
               >
@@ -89,9 +89,9 @@ const links = {
 
     <!-- Bottom bar -->
     <div class="
-      pt-8 border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+      pt-8 border-t border-[#DDD5CB] dark:border-[#2E2B28]
       flex flex-col sm:flex-row items-center justify-between gap-4
-      text-xs text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+      text-xs text-[#78716C] dark:text-[#9B9189]
     ">
       <span>© {year} DrawBell · Built by <a href="https://kashifkhan.dev" class="hover:text-brand transition-colors">Kashif Khan</a></span>
       <span class="font-mono">

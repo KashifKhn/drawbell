@@ -18,16 +18,16 @@ const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].sort();
 >
   <Header />
 
-  <main class="min-h-screen bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5] pt-28 pb-24">
+  <main class="min-h-screen bg-[#FAF8F5] dark:bg-[#0C0B0A] pt-28 pb-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <!-- Header -->
       <div class="mb-16">
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">Blog</p>
         <h1 class="font-display font-extrabold text-5xl sm:text-6xl
-                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917] mb-4">
+                   text-[#1C1917] dark:text-[#F0EDE8] mb-4">
           From the blog.
         </h1>
-        <p class="text-lg text-[#9B9189] dark:text-[#9B9189] text-[#78716C] max-w-xl">
+        <p class="text-lg text-[#78716C] dark:text-[#9B9189] max-w-xl">
           Tips, research, and behind-the-scenes on building an AI-powered alarm app.
         </p>
       </div>
@@ -37,8 +37,8 @@ const allTags = [...new Set(allPosts.flatMap((p) => p.data.tags))].sort();
         <div class="flex flex-wrap gap-2 mb-12">
           {allTags.map((tag) => (
             <span class="text-xs font-mono px-3 py-1.5 rounded-full
-                         border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-                         text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+                         border border-[#DDD5CB] dark:border-[#2E2B28]
+                         text-[#78716C] dark:text-[#9B9189]
                          bg-transparent">
               {tag}
             </span>

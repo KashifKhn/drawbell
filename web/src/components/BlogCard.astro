@@ -18,8 +18,8 @@ const formattedDate = publishedDate.toLocaleDateString('en-US', {
   href={`/blog/${slug}`}
   class="
     group block rounded-2xl p-6
-    border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-    bg-[#131211] dark:bg-[#131211] bg-white
+    border border-[#DDD5CB] dark:border-[#2E2B28]
+    bg-white dark:bg-[#131211]
     hover:border-brand dark:hover:border-brand
     transition-all duration-300
     hover:-translate-y-1
@@ -36,19 +36,19 @@ const formattedDate = publishedDate.toLocaleDateString('en-US', {
 
   <h3 class="
     font-display text-lg font-bold leading-snug mb-2
-    text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]
+    text-[#1C1917] dark:text-[#F0EDE8]
     group-hover:text-brand dark:group-hover:text-brand
     transition-colors duration-200
   ">{title}</h3>
 
   <p class="
     text-sm leading-relaxed mb-4
-    text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+    text-[#78716C] dark:text-[#9B9189]
     line-clamp-2
   ">{description}</p>
 
   <div class="flex items-center justify-between">
-    <time class="text-xs text-[#9B9189] dark:text-[#9B9189] text-[#78716C] font-mono">
+    <time class="text-xs text-[#78716C] dark:text-[#9B9189] font-mono">
       {formattedDate}
     </time>
     <span class="

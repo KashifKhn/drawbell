@@ -110,7 +110,7 @@ const faqSchema = {
   <section
     id="hero"
     class="relative min-h-screen flex items-center pt-16 overflow-hidden
-           bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5]"
+           bg-[#FAF8F5] dark:bg-[#0C0B0A]"
   >
     <!-- Ambient glow -->
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
@@ -138,15 +138,15 @@ const faqSchema = {
           </div>
 
           <h1 class="font-display font-extrabold leading-[1.05] mb-6
-                     text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                     text-[#1C1917] dark:text-[#F0EDE8]">
             <span class="block text-5xl sm:text-6xl xl:text-7xl">The alarm you</span>
             <span class="block text-5xl sm:text-6xl xl:text-7xl text-brand">can't dismiss</span>
             <span class="block text-5xl sm:text-6xl xl:text-7xl">without waking up.</span>
           </h1>
 
           <p class="text-lg leading-relaxed mb-8 max-w-xl
-                    text-[#9B9189] dark:text-[#9B9189] text-[#78716C]">
-            DrawBell rings. You get a random drawing prompt — <em class="not-italic text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">"Draw a cat."</em>
+                    text-[#78716C] dark:text-[#9B9189]">
+            DrawBell rings. You get a random drawing prompt — <em class="not-italic text-[#1C1917] dark:text-[#F0EDE8]">"Draw a cat."</em>
             The on-device AI verifies your drawing. No correct drawing → no dismissal.
             Your drawings never leave your phone. Ever.
           </p>
@@ -192,7 +192,7 @@ const faqSchema = {
 
           <!-- Trust badges -->
           <div class="flex flex-wrap gap-4 text-xs font-mono
-                      text-[#9B9189] dark:text-[#9B9189] text-[#78716C]">
+                      text-[#78716C] dark:text-[#9B9189]">
             <span class="flex items-center gap-1.5">
               <svg class="w-3.5 h-3.5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -227,7 +227,7 @@ const faqSchema = {
             id="hero-demo"
             class="relative rounded-3xl overflow-hidden
                    border border-brand/20
-                   bg-[#131211] dark:bg-[#131211] bg-white
+                   bg-white dark:bg-[#131211]
                    shadow-[0_0_60px_rgba(217,74,9,0.15)]
                    animate-glow"
           >
@@ -244,7 +244,7 @@ const faqSchema = {
             <!-- Phase 1: Alarm ringing -->
             <div id="phase-alarm" class="phase px-6 pt-8 pb-6 text-center">
               <div class="font-display font-extrabold text-5xl mb-1
-                          text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                          text-[#1C1917] dark:text-[#F0EDE8]">
                 07:00
               </div>
               <div class="text-sm font-mono text-[#9B9189] mb-6">Monday</div>
@@ -265,7 +265,7 @@ const faqSchema = {
               <div class="text-center mb-3">
                 <p class="text-xs font-mono text-[#9B9189] mb-1">CHALLENGE · HARD MODE</p>
                 <h2 class="font-display font-bold text-xl
-                           text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                           text-[#1C1917] dark:text-[#F0EDE8]">
                   Draw a <span class="text-brand">cat</span>
                 </h2>
               </div>
@@ -352,7 +352,7 @@ const faqSchema = {
                 </svg>
               </div>
               <p class="font-display font-bold text-lg
-                        text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917] mb-1">
+                        text-[#1C1917] dark:text-[#F0EDE8] mb-1">
                 Alarm Dismissed
               </p>
               <p class="text-xs font-mono text-emerald-400">cat · 82% confidence</p>
@@ -418,16 +418,16 @@ const faqSchema = {
   ══════════════════════════════════════════════ -->
   <section
     id="how-it-works"
-    class="py-24 bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5]"
+    class="py-24 bg-[#FAF8F5] dark:bg-[#0C0B0A]"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-16 animate-on-scroll">
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">How It Works</p>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl
-                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                   text-[#1C1917] dark:text-[#F0EDE8]">
           Simple. Brutal. Effective.
         </h2>
-        <p class="mt-4 text-lg text-[#9B9189] dark:text-[#9B9189] text-[#78716C] max-w-xl mx-auto">
+        <p class="mt-4 text-lg text-[#78716C] dark:text-[#9B9189] max-w-xl mx-auto">
           Three steps stand between you and your alarm being silenced.
         </p>
       </div>
@@ -455,24 +455,24 @@ const faqSchema = {
         ].map(({ num, icon, title, body }, i) => (
           <div
             class="animate-on-scroll relative p-6 rounded-2xl
-                   border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-                   bg-[#131211] dark:bg-[#131211] bg-white
+                   border border-[#DDD5CB] dark:border-[#2E2B28]
+                   bg-white dark:bg-[#131211]
                    group hover:border-brand/40 transition-colors duration-300"
             style={`animation-delay: ${i * 100}ms`}
           >
             <div class="absolute -top-4 left-6">
               <span class="font-mono text-xs font-bold text-brand
-                           bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5]
+                           bg-[#FAF8F5] dark:bg-[#0C0B0A]
                            px-2 py-0.5 rounded border border-brand/30">
                 {num}
               </span>
             </div>
             <div class="text-brand mb-4 mt-2" set:html={icon} />
             <h3 class="font-display font-bold text-lg mb-2
-                       text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                       text-[#1C1917] dark:text-[#F0EDE8]">
               {title}
             </h3>
-            <p class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C] leading-relaxed">
+            <p class="text-sm text-[#78716C] dark:text-[#9B9189] leading-relaxed">
               {body}
             </p>
           </div>
@@ -486,17 +486,17 @@ const faqSchema = {
   ══════════════════════════════════════════════ -->
   <section
     id="ai-model"
-    class="py-24 bg-[#111010] dark:bg-[#111010] bg-[#F2EDE6]
-           border-y border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]"
+    class="py-24 bg-[#F2EDE6] dark:bg-[#111010]
+           border-y border-[#DDD5CB] dark:border-[#2E2B28]"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-16 animate-on-scroll">
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">The AI Model</p>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl
-                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                   text-[#1C1917] dark:text-[#F0EDE8]">
           Built on real data.<br/>Running on your phone.
         </h2>
-        <p class="mt-4 text-lg text-[#9B9189] dark:text-[#9B9189] text-[#78716C] max-w-2xl mx-auto">
+        <p class="mt-4 text-lg text-[#78716C] dark:text-[#9B9189] max-w-2xl mx-auto">
           The SE-ResNet model was trained on 50 million+ drawings from Google Quick Draw
           and is bundled inside the app — no servers, no cloud, no latency.
         </p>
@@ -511,17 +511,17 @@ const faqSchema = {
           { value: 8.44,   suffix: ' MB', label: 'Model size',              sub: 'Float16 TFLite, on-device'  },
         ].map(({ value, suffix, label, sub }) => (
           <div class="animate-on-scroll text-center p-6 rounded-2xl
-                      border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-                      bg-[#131211] dark:bg-[#131211] bg-white">
+                      border border-[#DDD5CB] dark:border-[#2E2B28]
+                      bg-white dark:bg-[#131211]">
             <div class="font-display font-extrabold text-4xl sm:text-5xl text-brand mb-1"
                  data-count={value} data-suffix={suffix}>
               {value}{suffix}
             </div>
             <div class="font-medium text-sm mb-1
-                        text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                        text-[#1C1917] dark:text-[#F0EDE8]">
               {label}
             </div>
-            <div class="text-xs text-[#9B9189] dark:text-[#9B9189] text-[#78716C] font-mono">
+            <div class="text-xs text-[#78716C] dark:text-[#9B9189] font-mono">
               {sub}
             </div>
           </div>
@@ -530,10 +530,10 @@ const faqSchema = {
 
       <!-- Model tech details -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="p-6 rounded-2xl border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-                    bg-[#131211] dark:bg-[#131211] bg-white animate-on-scroll">
+        <div class="p-6 rounded-2xl border border-[#DDD5CB] dark:border-[#2E2B28]
+                    bg-white dark:bg-[#131211] animate-on-scroll">
           <h3 class="font-display font-bold text-lg mb-4
-                     text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                     text-[#1C1917] dark:text-[#F0EDE8]">
             Architecture
           </h3>
           <div class="space-y-3 font-mono text-sm">
@@ -547,16 +547,16 @@ const faqSchema = {
             ].map(([k, v]) => (
               <div class="flex gap-3">
                 <span class="text-[#9B9189] shrink-0 w-28">{k}</span>
-                <span class="text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">{v}</span>
+                <span class="text-[#1C1917] dark:text-[#F0EDE8]">{v}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div class="p-6 rounded-2xl border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-                    bg-[#131211] dark:bg-[#131211] bg-white animate-on-scroll">
+        <div class="p-6 rounded-2xl border border-[#DDD5CB] dark:border-[#2E2B28]
+                    bg-white dark:bg-[#131211] animate-on-scroll">
           <h3 class="font-display font-bold text-lg mb-4
-                     text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                     text-[#1C1917] dark:text-[#F0EDE8]">
             Privacy guarantee
           </h3>
           <ul class="space-y-3 text-sm">
@@ -571,7 +571,7 @@ const faqSchema = {
                 <svg class="w-4 h-4 text-brand shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
-                <span class="text-[#9B9189] dark:text-[#9B9189] text-[#78716C]">{item}</span>
+                <span class="text-[#78716C] dark:text-[#9B9189]">{item}</span>
               </li>
             ))}
           </ul>
@@ -583,26 +583,26 @@ const faqSchema = {
   <!-- ══════════════════════════════════════════════
        COMPARISON TABLE
   ══════════════════════════════════════════════ -->
-  <section class="py-24 bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5]">
+  <section class="py-24 bg-[#FAF8F5] dark:bg-[#0C0B0A]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-16 animate-on-scroll">
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">Comparison</p>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl
-                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                   text-[#1C1917] dark:text-[#F0EDE8]">
           Why DrawBell is different.
         </h2>
-        <p class="mt-4 text-[#9B9189] dark:text-[#9B9189] text-[#78716C] max-w-xl mx-auto">
+        <p class="mt-4 text-[#78716C] dark:text-[#9B9189] max-w-xl mx-auto">
           Other challenge alarm apps are either too easy or rely on external objects.
           DrawBell uses actual AI verification.
         </p>
       </div>
 
-      <div class="overflow-x-auto rounded-2xl border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB] animate-on-scroll">
+      <div class="overflow-x-auto rounded-2xl border border-[#DDD5CB] dark:border-[#2E2B28] animate-on-scroll">
         <table class="w-full text-sm border-collapse min-w-[600px]">
           <thead>
-            <tr class="border-b border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]">
+            <tr class="border-b border-[#DDD5CB] dark:border-[#2E2B28]">
               <th class="text-left px-6 py-4 font-mono text-xs uppercase tracking-wide
-                         text-[#9B9189] bg-[#131211] dark:bg-[#131211] bg-[#F9F7F4]">
+                         text-[#9B9189] bg-[#F9F7F4] dark:bg-[#131211]">
                 Feature
               </th>
               <th class="px-6 py-4 font-display font-bold text-brand
@@ -610,11 +610,11 @@ const faqSchema = {
                 DrawBell ✦
               </th>
               <th class="px-6 py-4 font-mono text-xs uppercase tracking-wide
-                         text-[#9B9189] bg-[#131211] dark:bg-[#131211] bg-[#F9F7F4] text-center">
+                         text-[#9B9189] bg-[#F9F7F4] dark:bg-[#131211] text-center">
                 Alarmy
               </th>
               <th class="px-6 py-4 font-mono text-xs uppercase tracking-wide
-                         text-[#9B9189] bg-[#131211] dark:bg-[#131211] bg-[#F9F7F4] text-center">
+                         text-[#9B9189] bg-[#F9F7F4] dark:bg-[#131211] text-center">
                 DoodleWake
               </th>
             </tr>
@@ -631,16 +631,16 @@ const faqSchema = {
               ['Adjustable difficulty',    '3 levels', 'Limited', false],
               ['Free',                     true,  '~',   '~'  ],
             ].map(([feature, db, al, dw], i) => (
-              <tr class={`border-b border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-                          last:border-none ${i % 2 === 0 ? '' : 'bg-[#0F0E0D] dark:bg-[#0F0E0D] bg-[#FAF8F5]'}`}>
-                <td class="px-6 py-4 text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
-                           bg-[#131211] dark:bg-[#131211] bg-white font-mono text-xs">
+              <tr class={`border-b border-[#DDD5CB] dark:border-[#2E2B28]
+                          last:border-none ${i % 2 === 0 ? '' : 'bg-[#FAF8F5] dark:bg-[#0F0E0D]'}`}>
+                <td class="px-6 py-4 text-[#78716C] dark:text-[#9B9189]
+                           bg-white dark:bg-[#131211] font-mono text-xs">
                   {feature}
                 </td>
                 <td class="px-6 py-4 text-center bg-brand/5 border-x border-brand/20 font-medium">
                   {db === true  ? <span class="text-brand">✓</span>
                    : db === false ? <span class="text-red-400">✗</span>
-                   : <span class="text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">{db}</span>}
+                   : <span class="text-[#1C1917] dark:text-[#F0EDE8]">{db}</span>}
                 </td>
                 <td class="px-6 py-4 text-center">
                   {al === true   ? <span class="text-emerald-400 opacity-60">✓</span>
@@ -667,17 +667,17 @@ const faqSchema = {
   ══════════════════════════════════════════════ -->
   <section
     id="difficulty"
-    class="py-24 bg-[#111010] dark:bg-[#111010] bg-[#F2EDE6]
-           border-y border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]"
+    class="py-24 bg-[#F2EDE6] dark:bg-[#111010]
+           border-y border-[#DDD5CB] dark:border-[#2E2B28]"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-16 animate-on-scroll">
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">Difficulty</p>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl
-                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                   text-[#1C1917] dark:text-[#F0EDE8]">
           Choose your challenge.
         </h2>
-        <p class="mt-4 text-[#9B9189] dark:text-[#9B9189] text-[#78716C] max-w-xl mx-auto">
+        <p class="mt-4 text-[#78716C] dark:text-[#9B9189] max-w-xl mx-auto">
           The difficulty level controls how confident the AI must be in your drawing before it lets you go back to sleep.
         </p>
       </div>
@@ -739,8 +739,8 @@ const faqSchema = {
               ))}
             </div>
 
-            <div class="border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB] pt-4">
-              <p class="text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C] leading-relaxed">
+            <div class="border-t border-[#DDD5CB] dark:border-[#2E2B28] pt-4">
+              <p class="text-sm text-[#78716C] dark:text-[#9B9189] leading-relaxed">
                 {desc}
               </p>
             </div>
@@ -755,7 +755,7 @@ const faqSchema = {
   ══════════════════════════════════════════════ -->
   <section
     id="download"
-    class="py-24 bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5]"
+    class="py-24 bg-[#FAF8F5] dark:bg-[#0C0B0A]"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6">
       <div class="relative rounded-3xl overflow-hidden
@@ -769,10 +769,10 @@ const faqSchema = {
 
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-4">Download</p>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl mb-4
-                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                   text-[#1C1917] dark:text-[#F0EDE8]">
           Stop sleeping through your alarms.
         </h2>
-        <p class="text-lg text-[#9B9189] dark:text-[#9B9189] text-[#78716C] max-w-lg mx-auto mb-10">
+        <p class="text-lg text-[#78716C] dark:text-[#9B9189] max-w-lg mx-auto mb-10">
           Free. No account. No internet needed. Just you, a drawing prompt, and your brain at 7 AM.
         </p>
 
@@ -794,7 +794,7 @@ const faqSchema = {
 
           <div class="flex flex-col sm:flex-row gap-3">
             <div class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full
-                        border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+                        border border-[#DDD5CB] dark:border-[#2E2B28]
                         text-[#9B9189] text-sm opacity-50 cursor-not-allowed select-none">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3.18 23.76c.33.19.71.24 1.09.14l11.7-11.7L12.5 8.8 3.18 23.76zm17.24-10.48-3.06-1.76-3.42 3.42 3.42 3.42 3.07-1.77a1.74 1.74 0 000-3.31zM2.01 1.3C1.68 1.6 1.5 2.06 1.5 2.67v18.66c0 .61.18 1.07.51 1.37l.07.06 10.46-10.46v-.25L2.08 1.24l-.07.06zm10.38 9.6L8.72 7.23 2.01 1.24c.33-.19.73-.22 1.13-.07l12.4 7.15-3.15 2.58z"/>
@@ -802,7 +802,7 @@ const faqSchema = {
               Google Play — Coming Soon
             </div>
             <div class="inline-flex items-center gap-2 px-6 py-3.5 rounded-full
-                        border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
+                        border border-[#DDD5CB] dark:border-[#2E2B28]
                         text-[#9B9189] text-sm opacity-50 cursor-not-allowed select-none">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
@@ -827,14 +827,14 @@ const faqSchema = {
   ══════════════════════════════════════════════ -->
   <section
     id="faq"
-    class="py-24 bg-[#111010] dark:bg-[#111010] bg-[#F2EDE6]
-           border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]"
+    class="py-24 bg-[#F2EDE6] dark:bg-[#111010]
+           border-t border-[#DDD5CB] dark:border-[#2E2B28]"
   >
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
       <div class="text-center mb-16 animate-on-scroll">
         <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">FAQ</p>
         <h2 class="font-display font-extrabold text-4xl sm:text-5xl
-                   text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                   text-[#1C1917] dark:text-[#F0EDE8]">
           Frequently asked questions.
         </h2>
       </div>
@@ -842,13 +842,13 @@ const faqSchema = {
       <div class="space-y-3">
         {faqSchema.mainEntity.map(({ name, acceptedAnswer }, i) => (
           <details
-            class="group rounded-2xl border border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-                   bg-[#131211] dark:bg-[#131211] bg-white overflow-hidden animate-on-scroll"
+            class="group rounded-2xl border border-[#DDD5CB] dark:border-[#2E2B28]
+                   bg-white dark:bg-[#131211] overflow-hidden animate-on-scroll"
             style={`animation-delay: ${i * 50}ms`}
           >
             <summary class="flex items-center justify-between px-6 py-4 cursor-pointer
                             list-none select-none
-                            text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]
+                            text-[#1C1917] dark:text-[#F0EDE8]
                             font-medium text-sm hover:text-brand dark:hover:text-brand
                             transition-colors duration-200">
               {name}
@@ -858,8 +858,8 @@ const faqSchema = {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
               </svg>
             </summary>
-            <div class="px-6 pb-5 text-sm text-[#9B9189] dark:text-[#9B9189] text-[#78716C] leading-relaxed
-                        border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB] pt-4">
+            <div class="px-6 pb-5 text-sm text-[#78716C] dark:text-[#9B9189] leading-relaxed
+                        border-t border-[#DDD5CB] dark:border-[#2E2B28] pt-4">
               {acceptedAnswer.text}
             </div>
           </details>
@@ -872,14 +872,14 @@ const faqSchema = {
        BLOG PREVIEW
   ══════════════════════════════════════════════ -->
   {posts.length > 0 && (
-    <section class="py-24 bg-[#0C0B0A] dark:bg-[#0C0B0A] bg-[#FAF8F5]
-                    border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]">
+    <section class="py-24 bg-[#FAF8F5] dark:bg-[#0C0B0A]
+                    border-t border-[#DDD5CB] dark:border-[#2E2B28]">
       <div class="max-w-6xl mx-auto px-4 sm:px-6">
         <div class="flex items-end justify-between mb-12 animate-on-scroll">
           <div>
             <p class="text-xs font-mono text-brand uppercase tracking-widest mb-3">Blog</p>
             <h2 class="font-display font-extrabold text-4xl sm:text-5xl
-                       text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]">
+                       text-[#1C1917] dark:text-[#F0EDE8]">
               From the blog.
             </h2>
           </div>

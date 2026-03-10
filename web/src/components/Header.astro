@@ -33,7 +33,7 @@ const nav = [
           href={href}
           class="
             text-sm font-medium
-            text-[#9B9189] dark:text-[#9B9189] text-[#78716C]
+            text-[#78716C] dark:text-[#9B9189]
             hover:text-brand dark:hover:text-brand
             transition-colors duration-200
           "
@@ -79,8 +79,8 @@ const nav = [
     id="mobile-menu"
     class="
       hidden md:hidden
-      border-t border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-      bg-[#0C0B0A]/95 dark:bg-[#0C0B0A]/95 bg-[#FAF8F5]/95
+      border-t border-[#DDD5CB] dark:border-[#2E2B28]
+      bg-[#FAF8F5]/95 dark:bg-[#0C0B0A]/95
       backdrop-blur-md px-4 py-4
     "
   >
@@ -89,8 +89,8 @@ const nav = [
         href={href}
         class="
           block py-3 text-sm font-medium border-b
-          border-[#2E2B28] dark:border-[#2E2B28] border-[#DDD5CB]
-          text-[#F0EDE8] dark:text-[#F0EDE8] text-[#1C1917]
+          border-[#DDD5CB] dark:border-[#2E2B28]
+          text-[#1C1917] dark:text-[#F0EDE8]
           last:border-none
         "
       >{label}</a>
@@ -112,17 +112,9 @@ const nav = [
   // Scroll effect — add blur/bg after hero
   window.addEventListener('scroll', () => {
     if (window.scrollY > 60) {
-      header.classList.add(
-        'bg-[#0C0B0A]/90', 'dark:bg-[#0C0B0A]/90',
-        'backdrop-blur-md',
-        'border-b', 'border-[#2E2B28]', 'dark:border-[#2E2B28]',
-      );
+      header.classList.add('is-scrolled');
     } else {
-      header.classList.remove(
-        'bg-[#0C0B0A]/90', 'dark:bg-[#0C0B0A]/90',
-        'backdrop-blur-md',
-        'border-b', 'border-[#2E2B28]', 'dark:border-[#2E2B28]',
-      );
+      header.classList.remove('is-scrolled');
     }
   }, { passive: true });
 
