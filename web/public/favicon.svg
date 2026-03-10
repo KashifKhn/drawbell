@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#0C0B0A"/>
+  <!-- Bell body -->
+  <path d="M32 12 C22 12 16 20 16 30 L16 42 L48 42 L48 30 C48 20 42 12 32 12 Z"
+        fill="none" stroke="#D94A09" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Bell bottom arch -->
+  <path d="M24 42 Q32 50 40 42" fill="none" stroke="#D94A09" stroke-width="3" stroke-linecap="round"/>
+  <!-- Bell clapper -->
+  <circle cx="32" cy="43" r="2.5" fill="#D94A09"/>
+  <!-- Bell top -->
+  <line x1="32" y1="12" x2="32" y2="8" stroke="#D94A09" stroke-width="3" stroke-linecap="round"/>
+  <!-- Doodle lines (sketchy feel) -->
+  <path d="M20 38 Q21 37.5 22 38" fill="none" stroke="#D94A09" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <path d="M42 38 Q43 37.5 44 38" fill="none" stroke="#D94A09" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+</svg>

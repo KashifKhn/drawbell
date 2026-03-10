@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0C0B0A"/>
+      <stop offset="100%" style="stop-color:#1A1614"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="70%" cy="40%" r="50%">
+      <stop offset="0%" style="stop-color:#D94A09;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#D94A09;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Grid lines (subtle) -->
+  <g stroke="#2E2B28" stroke-width="1" opacity="0.3">
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+  </g>
+
+  <!-- Bell icon -->
+  <g transform="translate(80, 200)">
+    <path d="M60 20 C38 20 24 38 24 60 L24 88 L96 88 L96 60 C96 38 82 20 60 20 Z"
+          fill="none" stroke="#D94A09" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M42 88 Q60 106 78 88" fill="none" stroke="#D94A09" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="60" cy="90" r="5" fill="#D94A09"/>
+    <line x1="60" y1="20" x2="60" y2="10" stroke="#D94A09" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- DrawBell wordmark -->
+  <text x="172" y="278" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#F0EDE8">Draw</text>
+  <text x="380" y="278" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#D94A09">Bell</text>
+
+  <!-- Tagline -->
+  <text x="80" y="330" font-family="Georgia, serif" font-size="28" fill="#9B9189">
+    The alarm you can't dismiss without waking up.
+  </text>
+
+  <!-- Badges -->
+  <g transform="translate(80, 380)">
+    <rect width="200" height="36" rx="18" fill="#D94A09" fill-opacity="0.1" stroke="#D94A09" stroke-width="1" stroke-opacity="0.3"/>
+    <text x="100" y="23" text-anchor="middle" font-family="monospace" font-size="13" fill="#D94A09">On-Device AI</text>
+  </g>
+  <g transform="translate(296, 380)">
+    <rect width="200" height="36" rx="18" fill="#D94A09" fill-opacity="0.1" stroke="#D94A09" stroke-width="1" stroke-opacity="0.3"/>
+    <text x="100" y="23" text-anchor="middle" font-family="monospace" font-size="13" fill="#D94A09">345 Categories</text>
+  </g>
+  <g transform="translate(512, 380)">
+    <rect width="200" height="36" rx="18" fill="#D94A09" fill-opacity="0.1" stroke="#D94A09" stroke-width="1" stroke-opacity="0.3"/>
+    <text x="100" y="23" text-anchor="middle" font-family="monospace" font-size="13" fill="#D94A09">Zero Data</text>
+  </g>
+
+  <!-- Right: Mini alarm ring mockup card -->
+  <g transform="translate(820, 80)">
+    <rect width="300" height="460" rx="24" fill="#131211" stroke="#D94A09" stroke-width="1.5" stroke-opacity="0.3"/>
+    <!-- Header -->
+    <rect width="300" height="48" rx="24" fill="#1A1816"/>
+    <rect y="24" width="300" height="24" fill="#1A1816"/>
+    <text x="150" y="29" text-anchor="middle" font-family="monospace" font-size="11" fill="#9B9189">DrawBell</text>
+    <circle cx="260" cy="24" r="4" fill="#D94A09"/>
+    <!-- Time -->
+    <text x="150" y="130" text-anchor="middle" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#F0EDE8">07:00</text>
+    <text x="150" y="158" text-anchor="middle" font-family="monospace" font-size="12" fill="#9B9189">MONDAY</text>
+    <!-- Prompt -->
+    <rect x="20" y="175" width="260" height="1" fill="#2E2B28"/>
+    <text x="150" y="205" text-anchor="middle" font-family="monospace" font-size="11" fill="#9B9189">CHALLENGE</text>
+    <text x="150" y="234" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#F0EDE8">Draw a </text>
+    <text x="220" y="234" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#D94A09">cat</text>
+    <!-- Drawing canvas -->
+    <rect x="20" y="250" width="260" height="160" rx="12" fill="white"/>
+    <!-- Simple cat doodle -->
+    <circle cx="150" cy="330" r="52" fill="none" stroke="#1C1917" stroke-width="3"/>
+    <path d="M107 295 L94 261 L128 285" fill="none" stroke="#1C1917" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M193 295 L206 261 L172 285" fill="none" stroke="#1C1917" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="132" cy="322" r="8" fill="none" stroke="#1C1917" stroke-width="2.5"/>
+    <circle cx="168" cy="322" r="8" fill="none" stroke="#1C1917" stroke-width="2.5"/>
+    <!-- Attempt -->
+    <text x="150" y="430" text-anchor="middle" font-family="monospace" font-size="10" fill="#9B9189">Attempt 1 · Hard Mode</text>
+  </g>
+
+  <!-- Domain -->
+  <text x="80" y="590" font-family="monospace" font-size="18" fill="#9B9189" opacity="0.6">drawbell.kashifkhan.dev</text>
+</svg>
