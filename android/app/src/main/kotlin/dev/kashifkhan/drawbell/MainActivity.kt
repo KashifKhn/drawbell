@@ -1,6 +1,7 @@
 package dev.kashifkhan.drawbell
 
 import android.Manifest
+import android.app.NotificationManager
 import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,20 +10,25 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
 
     companion object {
         private const val CHANNEL = "dev.kashifkhan.drawbell/ringtones"
+        private const val NATIVE_ALARM_CHANNEL = "dev.kashifkhan.drawbell/native_alarm"
         private const val AUDIO_PERMISSION_CODE = 1001
     }
 
     private var pendingPermissionResult: MethodChannel.Result? = null
+    private var nativeAlarmMethodChannel: MethodChannel? = null
+    private var pendingLaunchPayload: String? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -52,6 +58,20 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
+        nativeAlarmMethodChannel =
+            MethodChannel(flutterEngine.dartExecutor.binaryMessenger, NATIVE_ALARM_CHANNEL)
+        nativeAlarmMethodChannel?.setMethodCallHandler { call, result ->
+            handleNativeAlarmMethodCall(call, result)
+        }
+
+        consumeLaunchIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        consumeLaunchIntent(intent)
     }
 
     private fun requestAudioPermission(result: MethodChannel.Result) {
@@ -158,5 +178,85 @@ class MainActivity : FlutterActivity() {
             }
         } catch (_: Exception) {
         }
+    }
+
+    private fun handleNativeAlarmMethodCall(
+        call: MethodCall,
+        result: MethodChannel.Result,
+    ) {
+        when (call.method) {
+            "scheduleAlarm" -> {
+                val args = call.arguments as? Map<*, *> ?: run {
+                    result.error("INVALID_ARGS", "Missing args", null)
+                    return
+                }
+                val id = (args["id"] as? Number)?.toInt() ?: run {
+                    result.error("INVALID_ARGS", "Missing id", null)
+                    return
+                }
+                val title = args["title"] as? String ?: "DrawBell"
+                val body = args["body"] as? String ?: "Alarm — draw to dismiss!"
+                val payload = args["payload"] as? String ?: ""
+                val sound = args["sound"] as? String ?: "default"
+                val scheduledTimeMillis =
+                    (args["scheduledTimeMillis"] as? Number)?.toLong() ?: run {
+                        result.error("INVALID_ARGS", "Missing scheduled time", null)
+                        return
+                    }
+                NativeAlarmScheduler.schedule(
+                    context = this,
+                    id = id,
+                    title = title,
+                    body = body,
+                    payload = payload,
+                    sound = sound,
+                    scheduledTimeMillis = scheduledTimeMillis,
+                )
+                result.success(null)
+            }
+
+            "cancelAlarm" -> {
+                val args = call.arguments as? Map<*, *>
+                val id = (args?.get("id") as? Number)?.toInt() ?: run {
+                    result.error("INVALID_ARGS", "Missing id", null)
+                    return
+                }
+                NativeAlarmScheduler.cancel(this, id)
+                result.success(null)
+            }
+
+            "cancelAll" -> {
+                NativeAlarmScheduler.cancelAll(this)
+                result.success(null)
+            }
+
+            "stopRingingAlarm" -> {
+                AlarmPlaybackService.stop(this)
+                result.success(null)
+            }
+
+            "consumeLaunchPayload" -> {
+                val payload = pendingLaunchPayload
+                pendingLaunchPayload = null
+                result.success(payload)
+            }
+
+            else -> result.notImplemented()
+        }
+    }
+
+    private fun consumeLaunchIntent(intent: Intent?) {
+        if (intent == null) {
+            return
+        }
+        if (intent.action != "dev.kashifkhan.drawbell.ACTION_OPEN_ALARM") {
+            return
+        }
+        val payload = intent.getStringExtra("alarm_payload") ?: return
+        pendingLaunchPayload = payload
+        nativeAlarmMethodChannel?.invokeMethod("onAlarmLaunch", payload)
+        val notificationManager =
+            getSystemService(NotificationManager::class.java)
+        notificationManager?.cancelAll()
     }
 }

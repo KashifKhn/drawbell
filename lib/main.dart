@@ -32,6 +32,11 @@ Future<void> main() async {
       _handleNotificationPayload(payload);
     },
   );
+  final String? launchPayload = await notifications
+      .consumeInitialAlarmPayload();
+  if (launchPayload != null) {
+    _handleNotificationPayload(launchPayload);
+  }
   await notifications.requestPermissions();
 
   runApp(

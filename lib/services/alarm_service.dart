@@ -37,6 +37,7 @@ class AlarmService {
       body: body,
       scheduledTime: nextFire,
       payload: payload,
+      sound: alarm.sound,
     );
   }
 

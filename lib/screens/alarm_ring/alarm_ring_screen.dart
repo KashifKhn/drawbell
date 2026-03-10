@@ -222,6 +222,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       _isDismissed = true;
     });
     await _audio.stopAlarm();
+    await NotificationService().stopRingingAlarm();
     if (!widget.isTestMode) {
       await _recordDismissal();
       await _disableAlarmIfOneShot();
@@ -299,6 +300,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     if (_isDismissed) return;
     _idleTimer?.cancel();
     _audio.stopAlarm();
+    await NotificationService().stopRingingAlarm();
 
     final int snoozeMinutes = ref.read(settingsProvider).snoozeMinutes;
     final DateTime snoozeTime = DateTime.now().add(
@@ -312,6 +314,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       body: 'Snoozed alarm — draw to dismiss!',
       scheduledTime: snoozeTime,
       payload: payload,
+      sound: widget.sound,
     );
 
     if (mounted) {
