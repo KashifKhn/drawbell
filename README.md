@@ -1,5 +1,7 @@
 # DrawBell
 
+**Website:** https://drawbell.kashifkhan.dev | **Download:** https://drawbell.kashifkhan.dev/download
+
 **Draw to dismiss your alarm.** DrawBell is an Android alarm app that forces you to wake up by drawing a specific doodle -- verified in real-time by an on-device AI model -- before the alarm stops.
 
 The AI is a TFLite SE-ResNet trained on the [Google Quick Draw](https://quickdraw.withgoogle.com/data) dataset, recognizing 345 categories with 76% top-1 accuracy (89.5% top-3).
