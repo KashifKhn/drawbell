@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class AlarmRingScreen extends ConsumerStatefulWidget {
   final Difficulty difficulty;
   final List<String> categories;
   final String sound;
+  final String label;
   final bool usesNativeAlarmAudio;
   final bool isTestMode;
   final String? alarmId;
@@ -38,6 +40,7 @@ class AlarmRingScreen extends ConsumerStatefulWidget {
     required this.difficulty,
     this.categories = const [],
     this.sound = 'default',
+    this.label = '',
     this.usesNativeAlarmAudio = false,
     this.isTestMode = false,
     this.alarmId,
@@ -308,11 +311,17 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     final DateTime snoozeTime = DateTime.now().add(
       Duration(minutes: snoozeMinutes),
     );
-    final String payload = '{"difficulty":${widget.difficulty.index}}';
+    final String payload = jsonEncode({
+      'difficulty': widget.difficulty.index,
+      'categories': widget.categories,
+      'sound': widget.sound,
+      'label': widget.label,
+    });
+    final String title = widget.label.isNotEmpty ? widget.label : 'DrawBell';
 
     await NotificationService().scheduleAlarm(
       id: snoozeTime.hashCode & 0x7FFFFFFF,
-      title: 'DrawBell',
+      title: title,
       body: 'Snoozed alarm — draw to dismiss!',
       scheduledTime: snoozeTime,
       payload: payload,
