@@ -1,6 +1,7 @@
 package dev.kashifkhan.drawbell
 
 import android.content.Context
+import org.json.JSONObject
 
 object NativeAlarmStore {
     private const val PREFS_NAME = "drawbell_native_alarms"
@@ -9,21 +10,49 @@ object NativeAlarmStore {
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    fun putAlarm(context: Context, id: Int, payload: String) {
+    fun putAlarm(
+        context: Context,
+        id: Int,
+        title: String,
+        body: String,
+        payload: String,
+        sound: String,
+        scheduledTimeMillis: Long,
+    ) {
+        val entry = JSONObject().apply {
+            put("title", title)
+            put("body", body)
+            put("payload", payload)
+            put("sound", sound)
+            put("scheduledTimeMillis", scheduledTimeMillis)
+        }.toString()
         prefs(context).edit()
-            .putString("payload_$id", payload)
+            .putString("entry_$id", entry)
             .apply()
         val ids = getAlarmIds(context).toMutableSet()
         ids.add(id)
         saveAlarmIds(context, ids)
     }
 
-    fun getPayload(context: Context, id: Int): String? {
-        return prefs(context).getString("payload_$id", null)
+    fun getEntry(context: Context, id: Int): AlarmEntry? {
+        val raw = prefs(context).getString("entry_$id", null) ?: return null
+        return try {
+            val obj = JSONObject(raw)
+            AlarmEntry(
+                id = id,
+                title = obj.getString("title"),
+                body = obj.getString("body"),
+                payload = obj.getString("payload"),
+                sound = obj.getString("sound"),
+                scheduledTimeMillis = obj.getLong("scheduledTimeMillis"),
+            )
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun removeAlarm(context: Context, id: Int) {
-        prefs(context).edit().remove("payload_$id").apply()
+        prefs(context).edit().remove("entry_$id").apply()
         val ids = getAlarmIds(context).toMutableSet()
         ids.remove(id)
         saveAlarmIds(context, ids)
@@ -38,7 +67,7 @@ object NativeAlarmStore {
         val ids = getAlarmIds(context)
         val editor = prefs(context).edit()
         for (id in ids) {
-            editor.remove("payload_$id")
+            editor.remove("entry_$id")
         }
         editor.remove(KEY_IDS)
         editor.apply()
@@ -49,4 +78,13 @@ object NativeAlarmStore {
             .putStringSet(KEY_IDS, ids.map { it.toString() }.toSet())
             .apply()
     }
+
+    data class AlarmEntry(
+        val id: Int,
+        val title: String,
+        val body: String,
+        val payload: String,
+        val sound: String,
+        val scheduledTimeMillis: Long,
+    )
 }
