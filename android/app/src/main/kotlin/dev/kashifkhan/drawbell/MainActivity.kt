@@ -232,5 +232,8 @@ class MainActivity : FlutterActivity() {
         val notificationManager =
             getSystemService(NotificationManager::class.java)
         notificationManager?.cancelAll()
+        intent.action = null
+        intent.removeExtra("alarm_payload")
+        intent.removeExtra("alarm_id")
     }
 }
