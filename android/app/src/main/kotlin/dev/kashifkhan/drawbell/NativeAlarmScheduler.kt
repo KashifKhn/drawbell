@@ -36,7 +36,15 @@ object NativeAlarmScheduler {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        NativeAlarmStore.putAlarm(context, id, payload)
+        NativeAlarmStore.putAlarm(
+            context = context,
+            id = id,
+            title = title,
+            body = body,
+            payload = payload,
+            sound = sound,
+            scheduledTimeMillis = scheduledTimeMillis,
+        )
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
