@@ -44,17 +44,20 @@ flutter test --coverage
 ## Code Style Rules
 
 ### Formatting
+
 - Line length: 80 characters (Dart default)
 - Use `dart format` before every commit
 - Trailing commas on all argument lists (widgets, functions) for consistent formatting
 - No manual line breaks inside formatted code -- let `dart format` handle it
 
 ### Comments
+
 - No comments and no doc comments unless absolutely necessary
 - Never write `// TODO`, `// FIXME`, or commented-out code
 - If a comment is needed, it must explain WHY, never WHAT
 
 ### Imports
+
 - Dart SDK imports first, then package imports, then relative imports
 - One blank line between each import group
 - Always use relative imports for project files (`import '../models/alarm_model.dart'`)
@@ -62,6 +65,7 @@ flutter test --coverage
 - Remove all unused imports
 
 ### Naming Conventions
+
 - Files: `snake_case.dart` (e.g. `alarm_model.dart`, `home_screen.dart`)
 - Classes: `PascalCase` (e.g. `AlarmModel`, `HomeScreen`)
 - Variables/functions: `camelCase` (e.g. `alarmList`, `formatTime`)
@@ -71,6 +75,7 @@ flutter test --coverage
 - Providers (Riverpod): `camelCase` ending with `Provider` (e.g. `alarmListProvider`)
 
 ### Types
+
 - Always specify types explicitly -- no `var`, no `dynamic` unless unavoidable
 - Use `final` for all local variables that are not reassigned
 - Use `const` constructors wherever possible
@@ -78,12 +83,14 @@ flutter test --coverage
 - Use `required` for all named parameters that must be provided
 
 ### Error Handling
+
 - Never silently swallow errors -- always log or handle
 - Use specific exception types, not generic `Exception`
 - Services should return result types or throw typed exceptions
 - UI should show user-facing error messages via SnackBar
 
 ### Architecture
+
 - State management: Riverpod (flutter_riverpod)
 - Navigation: GoRouter (go_router)
 - Storage: SharedPreferences for settings, Isar for structured data
@@ -93,6 +100,7 @@ flutter test --coverage
 - Screens live in `lib/screens/<feature>/` with a `widgets/` subfolder
 
 ### Widget / Component Rules
+
 - Every widget must be small and single-purpose
 - Extract reusable widgets into the screen's `widgets/` subfolder
 - DRY -- never duplicate widget trees, extract shared components
@@ -102,6 +110,7 @@ flutter test --coverage
 - No magic numbers -- extract to constants
 
 ### UI/UX Consistency
+
 - Theme color: `#d94a09` as Material 3 seed color
 - Use `ColorScheme.fromSeed(seedColor: Color(0xFFD94A09))` for both light and dark
 - Always use theme colors from `Theme.of(context).colorScheme`
@@ -145,6 +154,7 @@ lib/
 ```
 
 ### Testing
+
 - Test files mirror `lib/` structure inside `test/`
 - File naming: `<source_file>_test.dart`
 - Group related tests with `group()`
@@ -152,26 +162,18 @@ lib/
 - Widget tests use `pumpWidget` with required providers wrapped
 
 ### Git
+
 - Run `flutter analyze` and `dart format lib/ test/` before every commit
 - Fix all analyzer warnings before committing
 - Commit messages: `type: short description` (e.g. `feat: add home screen with alarm list`)
 - Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `style`
 
 ### Dependencies (planned)
-- `tflite_flutter` -- on-device TFLite inference
-- `flutter_riverpod` -- state management
-- `go_router` -- routing
-- `android_alarm_manager_plus` -- alarm scheduling
-- `flutter_local_notifications` -- notifications
-- `just_audio` -- alarm sound
-- `shared_preferences` -- key-value storage
-- `isar` / `isar_flutter_libs` -- structured DB
-- `wakelock_plus` -- keep screen on
-- `vibration` -- vibrate on alarm
-- `permission_handler` -- runtime permissions
-- `intl` -- date/time formatting
+
+- when every you need to add new dependency add by using cli `flutter pub add <dependencies>`
 
 ### Reference
+
 - AI model: `/home/zarqan-khn/mycoding/ai-ml-dl/kaggle/quickdraw-345-classifier/model/`
 - Reference Flutter app: `/home/zarqan-khn/mycoding/ai-ml-dl/kaggle/quickdraw-345-classifier/quickdraw_app/`
 - Plan: `docs/DRAWBELL_PLAN.md`

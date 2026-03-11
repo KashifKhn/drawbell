@@ -42,7 +42,7 @@ echo "pubspec.yaml -> version: ${VERSION_NAME}+${BUILD_NUMBER}"
 flutter pub get
 
 git add pubspec.yaml pubspec.lock
-git commit -m "chore: bump version to ${VERSION_NAME}+${BUILD_NUMBER}"
+git commit -m "chore(release): bump version to ${VERSION_NAME}+${BUILD_NUMBER}"
 
 git tag "$TAG"
 git push origin HEAD
