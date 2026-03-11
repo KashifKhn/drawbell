@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^2.3.4
   uuid: ^4.5.1
   just_audio: ^0.9.42
+  audio_session: ^0.1.21
   wakelock_plus: ^1.2.8
   vibration: ^2.0.0
   flutter_local_notifications: ^20.1.0
