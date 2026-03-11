@@ -1,8 +1,32 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+  errors:
+    missing_required_param: error
+    missing_return: error
+    dead_code: error
+    invalid_annotation_target: error
+    todo: warning
+
+  exclude:
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+    - '**/*.pb.dart'
+    - 'build/**'
+
 linter:
   rules:
-    prefer_final_locals: true
     avoid_print: true
+    always_declare_return_types: true
+    prefer_final_fields: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
     prefer_relative_imports: true
     sized_box_for_whitespace: true
+    use_build_context_synchronously: true
+    use_key_in_widget_constructors: true
