@@ -61,6 +61,9 @@ const webSiteSchema = {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#D94A09" />
 
+  <!-- Google Search Console verification -->
+  <meta name="google-site-verification" content="GsnVvhnHNdZC3YMYInZxanh97DATIV3-Ooup2YHYcS8" />
+
   <!-- Primary SEO -->
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
@@ -100,6 +103,7 @@ const webSiteSchema = {
   <!-- Favicon -->
   <link rel="icon"             type="image/png" href="/favicon.png" />
   <link rel="apple-touch-icon" href="/favicon.png" />
+  <link rel="alternate" type="application/rss+xml" title="DrawBell Blog" href="/rss.xml" />
 
   <!-- JSON-LD: Organization + WebSite -->
   <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
