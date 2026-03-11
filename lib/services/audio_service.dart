@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 
+import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -19,6 +20,7 @@ class AudioService {
     bool vibrate = true,
   }) async {
     await WakelockPlus.enable();
+    await _configureAudioSession();
     await _loadAudio(sound);
     if (_audioAvailable) {
       await _player.setLoopMode(LoopMode.one);
@@ -27,6 +29,23 @@ class AudioService {
     }
     _isPlaying = true;
     if (vibrate) _startVibration();
+  }
+
+  Future<void> _configureAudioSession() async {
+    final AudioSession session = await AudioSession.instance;
+    await session.configure(
+      const AudioSessionConfiguration(
+        androidAudioAttributes: AndroidAudioAttributes(
+          contentType: AndroidAudioContentType.sonification,
+          usage: AndroidAudioUsage.alarm,
+          flags: AndroidAudioFlags.audibilityEnforced,
+        ),
+        androidAudioFocusGainType:
+            AndroidAudioFocusGainType.gainTransientExclusive,
+        androidWillPauseWhenDucked: false,
+      ),
+    );
+    await session.setActive(true);
   }
 
   Future<void> _loadAudio(String soundKey) async {
@@ -57,6 +76,12 @@ class AudioService {
     _isPlaying = false;
     await Vibration.cancel();
     await WakelockPlus.disable();
+    try {
+      final AudioSession session = await AudioSession.instance;
+      await session.setActive(false);
+    } catch (e) {
+      dev.log('Could not deactivate audio session: $e');
+    }
   }
 
   void _startVibration() {
