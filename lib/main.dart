@@ -9,6 +9,7 @@ import 'core/constants.dart';
 import 'providers/alarm_provider.dart';
 import 'providers/settings_provider.dart';
 import 'router.dart';
+import 'services/classifier_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'theme.dart';
@@ -20,6 +21,9 @@ Future<void> main() async {
 
   final StorageService storage = StorageService();
   await storage.init();
+
+  final ClassifierService classifier = ClassifierService();
+  await classifier.load();
 
   final String initialRoute = storage.isOnboardingComplete
       ? '/'
@@ -41,7 +45,10 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      overrides: [storageServiceProvider.overrideWithValue(storage)],
+      overrides: [
+        storageServiceProvider.overrideWithValue(storage),
+        classifierServiceProvider.overrideWithValue(classifier),
+      ],
       child: const DrawBellApp(),
     ),
   );

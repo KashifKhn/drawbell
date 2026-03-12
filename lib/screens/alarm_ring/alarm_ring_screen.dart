@@ -48,7 +48,7 @@ class AlarmRingScreen extends ConsumerStatefulWidget {
 }
 
 class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
-  final ClassifierService _classifier = ClassifierService();
+  late final ClassifierService _classifier;
   final AudioService _audio = AudioService();
 
   final List<List<Offset>> _strokes = [];
@@ -74,6 +74,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   @override
   void initState() {
     super.initState();
+    _classifier = ref.read(classifierServiceProvider);
     _currentThreshold = widget.difficulty.threshold;
     _startTime = DateTime.now();
     _initAlarm();
@@ -81,7 +82,6 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
 
   Future<void> _initAlarm() async {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    await _classifier.load();
     _pickPrompt();
     setState(() => _isLoading = false);
     if (!widget.isTestMode && !widget.usesNativeAlarmAudio) {
@@ -335,7 +335,6 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   void dispose() {
     _idleTimer?.cancel();
     _audio.dispose();
-    _classifier.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }

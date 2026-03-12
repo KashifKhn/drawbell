@@ -3,11 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/alarm_model.dart';
 import '../models/dismissal_record.dart';
 import '../services/alarm_service.dart';
+import '../services/classifier_service.dart';
 import '../services/storage_service.dart';
 
 final Provider<StorageService> storageServiceProvider =
     Provider<StorageService>((Ref ref) {
       return StorageService();
+    });
+
+final Provider<ClassifierService> classifierServiceProvider =
+    Provider<ClassifierService>((Ref ref) {
+      return ClassifierService();
     });
 
 final StateNotifierProvider<AlarmListNotifier, List<AlarmModel>>
