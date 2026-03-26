@@ -66,6 +66,24 @@ object NativeAlarmStore {
         return migrated
     }
 
+    fun rebuildEntryFromFlutterPrefs(
+        context: Context,
+        id: Int,
+        payload: String,
+    ): AlarmEntry? {
+        val rebuilt = buildEntryFromFlutterPrefs(context, id, payload) ?: return null
+        putAlarm(
+            context = context,
+            id = rebuilt.id,
+            title = rebuilt.title,
+            body = rebuilt.body,
+            payload = rebuilt.payload,
+            sound = rebuilt.sound,
+            scheduledTimeMillis = rebuilt.scheduledTimeMillis,
+        )
+        return rebuilt
+    }
+
     private fun parseEntry(id: Int, raw: String?): AlarmEntry? {
         if (raw == null) {
             return null

@@ -16,15 +16,26 @@ class BootReceiver : BroadcastReceiver() {
         val ids = NativeAlarmStore.getAlarmIds(context)
         for (id in ids) {
             val entry = NativeAlarmStore.getEntry(context, id) ?: continue
-            if (entry.scheduledTimeMillis <= now) continue
+            var entryToSchedule = entry
+            if (entryToSchedule.scheduledTimeMillis <= now) {
+                val rebuilt = NativeAlarmStore.rebuildEntryFromFlutterPrefs(
+                    context = context,
+                    id = id,
+                    payload = entryToSchedule.payload,
+                ) ?: continue
+                if (rebuilt.scheduledTimeMillis <= now) {
+                    continue
+                }
+                entryToSchedule = rebuilt
+            }
             NativeAlarmScheduler.schedule(
                 context = context,
-                id = entry.id,
-                title = entry.title,
-                body = entry.body,
-                payload = entry.payload,
-                sound = entry.sound,
-                scheduledTimeMillis = entry.scheduledTimeMillis,
+                id = entryToSchedule.id,
+                title = entryToSchedule.title,
+                body = entryToSchedule.body,
+                payload = entryToSchedule.payload,
+                sound = entryToSchedule.sound,
+                scheduledTimeMillis = entryToSchedule.scheduledTimeMillis,
             )
         }
     }
