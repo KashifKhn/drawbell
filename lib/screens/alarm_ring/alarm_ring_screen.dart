@@ -311,12 +311,14 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     final DateTime snoozeTime = DateTime.now().add(
       Duration(minutes: snoozeMinutes),
     );
-    final String payload = jsonEncode({
+    final Map<String, Object> payloadData = <String, Object>{
       'difficulty': widget.difficulty.index,
       'categories': widget.categories,
       'sound': widget.sound,
       'label': widget.label,
-    });
+      if (widget.alarmId != null) 'alarmId': widget.alarmId!,
+    };
+    final String payload = jsonEncode(payloadData);
     final String title = widget.label.isNotEmpty ? widget.label : 'DrawBell';
 
     await NotificationService().scheduleAlarm(
