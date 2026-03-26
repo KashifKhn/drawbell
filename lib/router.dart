@@ -56,6 +56,7 @@ GoRouter buildRouter({String initialLocation = '/'}) {
           final List<String> categories =
               extras['categories'] as List<String>? ?? const [];
           final String sound = extras['sound'] as String? ?? 'default';
+          final String label = extras['label'] as String? ?? '';
           final bool usesNativeAlarmAudio =
               extras['usesNativeAlarmAudio'] as bool? ?? false;
           final bool isTestMode = extras['isTestMode'] as bool? ?? false;
@@ -64,6 +65,7 @@ GoRouter buildRouter({String initialLocation = '/'}) {
             difficulty: difficulty,
             categories: categories,
             sound: sound,
+            label: label,
             usesNativeAlarmAudio: usesNativeAlarmAudio,
             isTestMode: isTestMode,
             alarmId: alarmId,
