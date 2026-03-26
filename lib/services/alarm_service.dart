@@ -25,6 +25,7 @@ class AlarmService {
       'difficulty': alarm.difficulty.index,
       'categories': alarm.categories,
       'sound': alarm.sound,
+      'label': alarm.label,
     });
 
     final String title = alarm.label.isNotEmpty ? alarm.label : 'DrawBell';
