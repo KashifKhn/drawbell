@@ -1,6 +1,7 @@
 package dev.kashifkhan.drawbell
 
 import android.content.Context
+import android.os.Build
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.Calendar
@@ -14,7 +15,11 @@ object NativeAlarmStore {
     private const val FLUTTER_ALARMS_KEY = "flutter.alarms"
 
     private fun deviceProtectedPrefs(context: Context) =
-        context.createDeviceProtectedStorageContext()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.createDeviceProtectedStorageContext()
+        } else {
+            context
+        }
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     private fun credentialProtectedPrefs(context: Context) =
