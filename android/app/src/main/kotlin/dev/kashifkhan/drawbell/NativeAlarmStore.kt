@@ -63,10 +63,6 @@ object NativeAlarmStore {
         if (parsedFromDevice != null) {
             return parsedFromDevice
         }
-        if (rawFromDevice != null) {
-            removeAlarm(context, id)
-            return null
-        }
 
         val rawFromCredential = runCatching {
             credentialProtectedPrefs(context).getString("$ENTRY_PREFIX$id", null)
@@ -84,7 +80,7 @@ object NativeAlarmStore {
             )
             return parsedFromCredential
         }
-        if (rawFromCredential != null) {
+        if (rawFromDevice != null || rawFromCredential != null) {
             removeAlarm(context, id)
             return null
         }
