@@ -108,6 +108,8 @@ object NativeAlarmStore {
         id: Int,
         legacyPayload: String,
     ): AlarmEntry? {
+        val payloadAlarmId = extractAlarmIdFromPayload(legacyPayload)
+            ?: return null
         val rawAlarms = context
             .getSharedPreferences(FLUTTER_PREFS_NAME, Context.MODE_PRIVATE)
             .getString(FLUTTER_ALARMS_KEY, null)
@@ -122,8 +124,7 @@ object NativeAlarmStore {
                     continue
                 }
 
-                val nativeId = alarmId.hashCode() and 0x7FFFFFFF
-                if (nativeId != id) {
+                if (alarmId != payloadAlarmId) {
                     continue
                 }
                 if (!alarm.optBoolean("isEnabled", true)) {
@@ -171,6 +172,19 @@ object NativeAlarmStore {
                 )
             }
             null
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun extractAlarmIdFromPayload(payload: String): String? {
+        return try {
+            val alarmId = JSONObject(payload).optString("alarmId", "")
+            if (alarmId.isEmpty()) {
+                null
+            } else {
+                alarmId
+            }
         } catch (_: Exception) {
             null
         }
