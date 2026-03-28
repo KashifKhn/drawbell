@@ -13,7 +13,11 @@ object NativeAlarmStore {
     private const val FLUTTER_PREFS_NAME = "FlutterSharedPreferences"
     private const val FLUTTER_ALARMS_KEY = "flutter.alarms"
 
-    private fun prefs(context: Context) =
+    private fun deviceProtectedPrefs(context: Context) =
+        context.createDeviceProtectedStorageContext()
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    private fun credentialProtectedPrefs(context: Context) =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun putAlarm(
@@ -32,23 +36,53 @@ object NativeAlarmStore {
             put("sound", sound)
             put("scheduledTimeMillis", scheduledTimeMillis)
         }.toString()
-        prefs(context).edit()
+
+        deviceProtectedPrefs(context).edit()
             .putString("$ENTRY_PREFIX$id", entry)
             .apply()
+        runCatching {
+            credentialProtectedPrefs(context).edit()
+                .putString("$ENTRY_PREFIX$id", entry)
+                .apply()
+        }
+
         val ids = getAlarmIds(context).toMutableSet()
         ids.add(id)
         saveAlarmIds(context, ids)
     }
 
     fun getEntry(context: Context, id: Int): AlarmEntry? {
-        val raw = prefs(context).getString("$ENTRY_PREFIX$id", null)
-        val parsed = parseEntry(id, raw)
-        if (parsed != null) {
-            return parsed
+        val rawFromDevice = deviceProtectedPrefs(context)
+            .getString("$ENTRY_PREFIX$id", null)
+        val parsedFromDevice = parseEntry(id, rawFromDevice)
+        if (parsedFromDevice != null) {
+            return parsedFromDevice
+        }
+
+        val rawFromCredential = runCatching {
+            credentialProtectedPrefs(context).getString("$ENTRY_PREFIX$id", null)
+        }.getOrNull()
+        val parsedFromCredential = parseEntry(id, rawFromCredential)
+        if (parsedFromCredential != null) {
+            putAlarm(
+                context = context,
+                id = parsedFromCredential.id,
+                title = parsedFromCredential.title,
+                body = parsedFromCredential.body,
+                payload = parsedFromCredential.payload,
+                sound = parsedFromCredential.sound,
+                scheduledTimeMillis = parsedFromCredential.scheduledTimeMillis,
+            )
+            return parsedFromCredential
         }
 
         val legacyPayload =
-            prefs(context).getString("$LEGACY_PAYLOAD_PREFIX$id", null)
+            deviceProtectedPrefs(context)
+                .getString("$LEGACY_PAYLOAD_PREFIX$id", null)
+                ?: runCatching {
+                    credentialProtectedPrefs(context)
+                        .getString("$LEGACY_PAYLOAD_PREFIX$id", null)
+                }.getOrNull()
                 ?: return null
         val migrated = buildEntryFromFlutterPrefs(context, id, legacyPayload)
             ?: return null
@@ -62,7 +96,16 @@ object NativeAlarmStore {
             sound = migrated.sound,
             scheduledTimeMillis = migrated.scheduledTimeMillis,
         )
-        prefs(context).edit().remove("$LEGACY_PAYLOAD_PREFIX$id").apply()
+
+        deviceProtectedPrefs(context).edit()
+            .remove("$LEGACY_PAYLOAD_PREFIX$id")
+            .apply()
+        runCatching {
+            credentialProtectedPrefs(context).edit()
+                .remove("$LEGACY_PAYLOAD_PREFIX$id")
+                .apply()
+        }
+
         return migrated
     }
 
@@ -110,10 +153,11 @@ object NativeAlarmStore {
     ): AlarmEntry? {
         val payloadAlarmId = extractAlarmIdFromPayload(legacyPayload)
             ?: return null
-        val rawAlarms = context
-            .getSharedPreferences(FLUTTER_PREFS_NAME, Context.MODE_PRIVATE)
-            .getString(FLUTTER_ALARMS_KEY, null)
-            ?: return null
+        val rawAlarms = runCatching {
+            context
+                .getSharedPreferences(FLUTTER_PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(FLUTTER_ALARMS_KEY, null)
+        }.getOrNull() ?: return null
 
         return try {
             val alarms = JSONArray(rawAlarms)
@@ -269,35 +313,66 @@ object NativeAlarmStore {
     }
 
     fun removeAlarm(context: Context, id: Int) {
-        prefs(context).edit()
+        deviceProtectedPrefs(context).edit()
             .remove("$ENTRY_PREFIX$id")
             .remove("$LEGACY_PAYLOAD_PREFIX$id")
             .apply()
+        runCatching {
+            credentialProtectedPrefs(context).edit()
+                .remove("$ENTRY_PREFIX$id")
+                .remove("$LEGACY_PAYLOAD_PREFIX$id")
+                .apply()
+        }
         val ids = getAlarmIds(context).toMutableSet()
         ids.remove(id)
         saveAlarmIds(context, ids)
     }
 
     fun getAlarmIds(context: Context): Set<Int> {
-        val raw = prefs(context).getStringSet(KEY_IDS, emptySet()) ?: emptySet()
-        return raw.mapNotNull { it.toIntOrNull() }.toSet()
+        val fromDevice =
+            deviceProtectedPrefs(context).getStringSet(KEY_IDS, emptySet())
+                ?: emptySet()
+        val fromCredential = runCatching {
+            credentialProtectedPrefs(context).getStringSet(KEY_IDS, emptySet())
+        }.getOrNull() ?: emptySet()
+
+        return (fromDevice + fromCredential)
+            .mapNotNull { it.toIntOrNull() }
+            .toSet()
     }
 
     fun clearAll(context: Context) {
         val ids = getAlarmIds(context)
-        val editor = prefs(context).edit()
+        val deviceEditor = deviceProtectedPrefs(context).edit()
         for (id in ids) {
-            editor.remove("$ENTRY_PREFIX$id")
-            editor.remove("$LEGACY_PAYLOAD_PREFIX$id")
+            deviceEditor.remove("$ENTRY_PREFIX$id")
+            deviceEditor.remove("$LEGACY_PAYLOAD_PREFIX$id")
         }
-        editor.remove(KEY_IDS)
-        editor.apply()
+        deviceEditor.remove(KEY_IDS)
+        deviceEditor.apply()
+
+        runCatching {
+            val credentialEditor = credentialProtectedPrefs(context).edit()
+            for (id in ids) {
+                credentialEditor.remove("$ENTRY_PREFIX$id")
+                credentialEditor.remove("$LEGACY_PAYLOAD_PREFIX$id")
+            }
+            credentialEditor.remove(KEY_IDS)
+            credentialEditor.apply()
+        }
     }
 
     private fun saveAlarmIds(context: Context, ids: Set<Int>) {
-        prefs(context).edit()
-            .putStringSet(KEY_IDS, ids.map { it.toString() }.toSet())
+        val rawIds = ids.map { it.toString() }.toSet()
+
+        deviceProtectedPrefs(context).edit()
+            .putStringSet(KEY_IDS, rawIds)
             .apply()
+        runCatching {
+            credentialProtectedPrefs(context).edit()
+                .putStringSet(KEY_IDS, rawIds)
+                .apply()
+        }
     }
 
     data class AlarmEntry(
