@@ -58,6 +58,10 @@ object NativeAlarmStore {
         if (parsedFromDevice != null) {
             return parsedFromDevice
         }
+        if (rawFromDevice != null) {
+            removeAlarm(context, id)
+            return null
+        }
 
         val rawFromCredential = runCatching {
             credentialProtectedPrefs(context).getString("$ENTRY_PREFIX$id", null)
@@ -75,6 +79,10 @@ object NativeAlarmStore {
             )
             return parsedFromCredential
         }
+        if (rawFromCredential != null) {
+            removeAlarm(context, id)
+            return null
+        }
 
         val legacyPayload =
             deviceProtectedPrefs(context)
@@ -83,9 +91,15 @@ object NativeAlarmStore {
                     credentialProtectedPrefs(context)
                         .getString("$LEGACY_PAYLOAD_PREFIX$id", null)
                 }.getOrNull()
-                ?: return null
+                ?: run {
+                    removeAlarm(context, id)
+                    return null
+                }
         val migrated = buildEntryFromFlutterPrefs(context, id, legacyPayload)
-            ?: return null
+            ?: run {
+                removeAlarm(context, id)
+                return null
+            }
 
         putAlarm(
             context = context,
