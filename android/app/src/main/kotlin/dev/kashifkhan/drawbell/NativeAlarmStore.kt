@@ -33,6 +33,10 @@ object NativeAlarmStore {
         payload: String,
         sound: String,
         scheduledTimeMillis: Long,
+        hour: Int,
+        minute: Int,
+        repeatDays: List<Int>,
+        scheduledDate: String?,
     ) {
         val entry = JSONObject().apply {
             put("title", title)
@@ -40,6 +44,10 @@ object NativeAlarmStore {
             put("payload", payload)
             put("sound", sound)
             put("scheduledTimeMillis", scheduledTimeMillis)
+            put("hour", hour)
+            put("minute", minute)
+            put("repeatDays", JSONArray(repeatDays))
+            put("scheduledDate", scheduledDate)
         }.toString()
 
         deviceProtectedPrefs(context).edit()
@@ -56,7 +64,11 @@ object NativeAlarmStore {
         saveAlarmIds(context, ids)
     }
 
-    fun getEntry(context: Context, id: Int): AlarmEntry? {
+    fun getEntry(
+        context: Context,
+        id: Int,
+        allowLegacyMigration: Boolean = true,
+    ): AlarmEntry? {
         val rawFromDevice = deviceProtectedPrefs(context)
             .getString("$ENTRY_PREFIX$id", null)
         val parsedFromDevice = parseEntry(id, rawFromDevice)
@@ -77,6 +89,10 @@ object NativeAlarmStore {
                 payload = parsedFromCredential.payload,
                 sound = parsedFromCredential.sound,
                 scheduledTimeMillis = parsedFromCredential.scheduledTimeMillis,
+                hour = parsedFromCredential.hour,
+                minute = parsedFromCredential.minute,
+                repeatDays = parsedFromCredential.repeatDays,
+                scheduledDate = parsedFromCredential.scheduledDate,
             )
             return parsedFromCredential
         }
@@ -96,9 +112,11 @@ object NativeAlarmStore {
                     removeAlarm(context, id)
                     return null
                 }
+        if (!allowLegacyMigration) {
+            return null
+        }
         val migrated = buildEntryFromFlutterPrefs(context, id, legacyPayload)
             ?: run {
-                removeAlarm(context, id)
                 return null
             }
 
@@ -110,6 +128,10 @@ object NativeAlarmStore {
             payload = migrated.payload,
             sound = migrated.sound,
             scheduledTimeMillis = migrated.scheduledTimeMillis,
+            hour = migrated.hour,
+            minute = migrated.minute,
+            repeatDays = migrated.repeatDays,
+            scheduledDate = migrated.scheduledDate,
         )
 
         deviceProtectedPrefs(context).edit()
@@ -138,6 +160,10 @@ object NativeAlarmStore {
             payload = rebuilt.payload,
             sound = rebuilt.sound,
             scheduledTimeMillis = rebuilt.scheduledTimeMillis,
+            hour = rebuilt.hour,
+            minute = rebuilt.minute,
+            repeatDays = rebuilt.repeatDays,
+            scheduledDate = rebuilt.scheduledDate,
         )
         return rebuilt
     }
@@ -155,10 +181,35 @@ object NativeAlarmStore {
                 payload = obj.getString("payload"),
                 sound = obj.getString("sound"),
                 scheduledTimeMillis = obj.getLong("scheduledTimeMillis"),
+                hour = obj.optInt("hour", -1),
+                minute = obj.optInt("minute", -1),
+                repeatDays = parseRepeatDays(obj.optJSONArray("repeatDays")),
+                scheduledDate = optNullableString(obj, "scheduledDate"),
             )
         } catch (_: Exception) {
             null
         }
+    }
+
+    fun rebuildFromStoredMetadata(entry: AlarmEntry): AlarmEntry? {
+        if (entry.hour !in 0..23 || entry.minute !in 0..59) {
+            return null
+        }
+
+        val repeatDays = entry.repeatDays.filter { it in 0..6 }
+        val scheduledDate = parseScheduledDate(entry.scheduledDate ?: "")
+        val scheduledTimeMillis = computeNextFireTimeMillis(
+            hour = entry.hour,
+            minute = entry.minute,
+            repeatDays = repeatDays.toSet(),
+            scheduledDate = scheduledDate,
+        )
+
+        return entry.copy(
+            scheduledTimeMillis = scheduledTimeMillis,
+            repeatDays = repeatDays,
+            scheduledDate = entry.scheduledDate,
+        )
     }
 
     private fun buildEntryFromFlutterPrefs(
@@ -228,12 +279,37 @@ object NativeAlarmStore {
                     payload = legacyPayload,
                     sound = sound,
                     scheduledTimeMillis = scheduledTimeMillis,
+                    hour = hour,
+                    minute = minute,
+                    repeatDays = repeatDays.toList(),
+                    scheduledDate = optNullableString(alarm, "scheduledDate"),
                 )
             }
             null
         } catch (_: Exception) {
             null
         }
+    }
+
+    private fun optNullableString(obj: JSONObject, key: String): String? {
+        if (!obj.has(key) || obj.isNull(key)) {
+            return null
+        }
+        return obj.optString(key, "")
+    }
+
+    private fun parseRepeatDays(raw: JSONArray?): List<Int> {
+        if (raw == null) {
+            return emptyList()
+        }
+        val repeatDays = mutableListOf<Int>()
+        for (index in 0 until raw.length()) {
+            val day = raw.optInt(index, -1)
+            if (day in 0..6) {
+                repeatDays.add(day)
+            }
+        }
+        return repeatDays
     }
 
     private fun extractAlarmIdFromPayload(payload: String): String? {
@@ -397,5 +473,9 @@ object NativeAlarmStore {
         val payload: String,
         val sound: String,
         val scheduledTimeMillis: Long,
+        val hour: Int,
+        val minute: Int,
+        val repeatDays: List<Int>,
+        val scheduledDate: String?,
     )
 }

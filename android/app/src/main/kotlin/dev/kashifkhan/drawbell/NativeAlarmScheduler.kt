@@ -16,6 +16,10 @@ object NativeAlarmScheduler {
         payload: String,
         sound: String,
         scheduledTimeMillis: Long,
+        hour: Int,
+        minute: Int,
+        repeatDays: List<Int>,
+        scheduledDate: String?,
     ) {
         val alarmManager =
             context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -44,6 +48,10 @@ object NativeAlarmScheduler {
             payload = payload,
             sound = sound,
             scheduledTimeMillis = scheduledTimeMillis,
+            hour = hour,
+            minute = minute,
+            repeatDays = repeatDays,
+            scheduledDate = scheduledDate,
         )
 
         alarmManager.setExactAndAllowWhileIdle(

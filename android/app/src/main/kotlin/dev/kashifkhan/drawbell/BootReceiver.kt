@@ -21,21 +21,35 @@ class BootReceiver : BroadcastReceiver() {
             action != ACTION_HTC_QUICKBOOT_POWERON
         ) return
 
+        val isLockedBoot = action == Intent.ACTION_LOCKED_BOOT_COMPLETED
         val now = System.currentTimeMillis()
         val ids = NativeAlarmStore.getAlarmIds(context)
         for (id in ids) {
-            val entry = NativeAlarmStore.getEntry(context, id) ?: continue
+            val entry = NativeAlarmStore.getEntry(
+                context = context,
+                id = id,
+                allowLegacyMigration = !isLockedBoot,
+            ) ?: continue
             var entryToSchedule = entry
             if (entryToSchedule.scheduledTimeMillis <= now) {
-                val rebuilt = NativeAlarmStore.rebuildEntryFromFlutterPrefs(
-                    context = context,
-                    id = id,
-                    payload = entryToSchedule.payload,
-                ) ?: continue
-                if (rebuilt.scheduledTimeMillis <= now) {
-                    continue
+                val rebuiltFromStored =
+                    NativeAlarmStore.rebuildFromStoredMetadata(entryToSchedule)
+                if (rebuiltFromStored != null && rebuiltFromStored.scheduledTimeMillis > now) {
+                    entryToSchedule = rebuiltFromStored
+                } else {
+                    if (isLockedBoot) {
+                        continue
+                    }
+                    val rebuilt = NativeAlarmStore.rebuildEntryFromFlutterPrefs(
+                        context = context,
+                        id = id,
+                        payload = entryToSchedule.payload,
+                    ) ?: continue
+                    if (rebuilt.scheduledTimeMillis <= now) {
+                        continue
+                    }
+                    entryToSchedule = rebuilt
                 }
-                entryToSchedule = rebuilt
             }
             NativeAlarmScheduler.schedule(
                 context = context,
@@ -45,6 +59,10 @@ class BootReceiver : BroadcastReceiver() {
                 payload = entryToSchedule.payload,
                 sound = entryToSchedule.sound,
                 scheduledTimeMillis = entryToSchedule.scheduledTimeMillis,
+                hour = entryToSchedule.hour,
+                minute = entryToSchedule.minute,
+                repeatDays = entryToSchedule.repeatDays,
+                scheduledDate = entryToSchedule.scheduledDate,
             )
         }
     }
