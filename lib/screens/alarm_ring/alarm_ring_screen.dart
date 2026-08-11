@@ -328,6 +328,14 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       scheduledTime: snoozeTime,
       payload: payload,
       sound: widget.sound,
+      hour: snoozeTime.hour,
+      minute: snoozeTime.minute,
+      repeatDays: const <int>[],
+      scheduledDate: DateTime(
+        snoozeTime.year,
+        snoozeTime.month,
+        snoozeTime.day,
+      ),
     );
 
     if (mounted) {
