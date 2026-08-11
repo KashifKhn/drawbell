@@ -172,6 +172,19 @@ class MainActivity : FlutterActivity() {
                 val body = args["body"] as? String ?: "Alarm — draw to dismiss!"
                 val payload = args["payload"] as? String ?: ""
                 val sound = args["sound"] as? String ?: "default"
+                val hour = (args["hour"] as? Number)?.toInt() ?: run {
+                    result.error("INVALID_ARGS", "Missing hour", null)
+                    return
+                }
+                val minute = (args["minute"] as? Number)?.toInt() ?: run {
+                    result.error("INVALID_ARGS", "Missing minute", null)
+                    return
+                }
+                val repeatDays =
+                    (args["repeatDays"] as? List<*>)
+                        ?.mapNotNull { (it as? Number)?.toInt() }
+                        ?: emptyList()
+                val scheduledDate = args["scheduledDate"] as? String
                 val scheduledTimeMillis =
                     (args["scheduledTimeMillis"] as? Number)?.toLong() ?: run {
                         result.error("INVALID_ARGS", "Missing scheduled time", null)
@@ -185,6 +198,10 @@ class MainActivity : FlutterActivity() {
                     payload = payload,
                     sound = sound,
                     scheduledTimeMillis = scheduledTimeMillis,
+                    hour = hour,
+                    minute = minute,
+                    repeatDays = repeatDays,
+                    scheduledDate = scheduledDate,
                 )
                 result.success(null)
             }

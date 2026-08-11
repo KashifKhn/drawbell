@@ -58,6 +58,7 @@ void _handleNotificationPayload(String payload) {
         ? List<String>.from(data['categories'] as List)
         : const [];
     final String sound = data['sound'] as String? ?? 'default';
+    final String label = data['label'] as String? ?? '';
     final String? alarmId = data['alarmId'] as String?;
     _router.push(
       '/alarm/ring',
@@ -65,6 +66,7 @@ void _handleNotificationPayload(String payload) {
         'difficulty': difficulty,
         'categories': categories,
         'sound': sound,
+        'label': label,
         'usesNativeAlarmAudio': true,
         if (alarmId != null) 'alarmId': alarmId,
       },

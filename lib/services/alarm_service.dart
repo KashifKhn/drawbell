@@ -25,6 +25,7 @@ class AlarmService {
       'difficulty': alarm.difficulty.index,
       'categories': alarm.categories,
       'sound': alarm.sound,
+      'label': alarm.label,
     });
 
     final String title = alarm.label.isNotEmpty ? alarm.label : 'DrawBell';
@@ -38,6 +39,10 @@ class AlarmService {
       scheduledTime: nextFire,
       payload: payload,
       sound: alarm.sound,
+      hour: alarm.time.hour,
+      minute: alarm.time.minute,
+      repeatDays: alarm.repeatDays,
+      scheduledDate: alarm.scheduledDate,
     );
   }
 
