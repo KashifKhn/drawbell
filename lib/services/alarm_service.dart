@@ -39,10 +39,6 @@ class AlarmService {
       scheduledTime: nextFire,
       payload: payload,
       sound: alarm.sound,
-      hour: alarm.time.hour,
-      minute: alarm.time.minute,
-      repeatDays: alarm.repeatDays,
-      scheduledDate: alarm.scheduledDate,
     );
   }
 

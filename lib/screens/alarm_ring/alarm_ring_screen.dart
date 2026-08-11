@@ -102,6 +102,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     if (exclude != null && pool.length > 1) {
       candidates = pool.where((String c) => c != exclude).toList();
     }
+    if (candidates.isEmpty) return;
     final String newPrompt = candidates[Random().nextInt(candidates.length)];
     setState(() => _prompt = newPrompt);
   }
@@ -328,14 +329,6 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       scheduledTime: snoozeTime,
       payload: payload,
       sound: widget.sound,
-      hour: snoozeTime.hour,
-      minute: snoozeTime.minute,
-      repeatDays: const <int>[],
-      scheduledDate: DateTime(
-        snoozeTime.year,
-        snoozeTime.month,
-        snoozeTime.day,
-      ),
     );
 
     if (mounted) {

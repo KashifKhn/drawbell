@@ -83,10 +83,6 @@ class NotificationService {
     required DateTime scheduledTime,
     required String payload,
     required String sound,
-    required int hour,
-    required int minute,
-    required List<int> repeatDays,
-    required DateTime? scheduledDate,
   }) async {
     await _nativeAlarms.scheduleAlarm(
       id: id,
@@ -95,10 +91,6 @@ class NotificationService {
       scheduledTime: scheduledTime,
       payload: payload,
       sound: sound,
-      hour: hour,
-      minute: minute,
-      repeatDays: repeatDays,
-      scheduledDate: scheduledDate,
     );
 
     if (Platform.isAndroid) {
