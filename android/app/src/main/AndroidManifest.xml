@@ -43,28 +43,13 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".BootReceiver"
-            android:enabled="true"
-            android:exported="false"
-            android:directBootAware="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
-                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
-                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
-            </intent-filter>
-        </receiver>
-        <receiver
             android:name=".AlarmReceiver"
             android:enabled="true"
-            android:exported="false"
-            android:directBootAware="true" />
+            android:exported="false" />
         <service
             android:name=".AlarmPlaybackService"
             android:enabled="true"
             android:exported="false"
-            android:directBootAware="true"
             android:foregroundServiceType="mediaPlayback" />
         <meta-data
             android:name="flutterEmbedding"

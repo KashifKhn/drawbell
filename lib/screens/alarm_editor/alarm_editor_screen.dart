@@ -459,7 +459,7 @@ class _AlarmEditorScreenState extends ConsumerState<AlarmEditorScreen> {
               child: Switch(
                 value: _snooze,
                 onChanged: (_) {},
-                activeColor: AppTheme.brandOrange,
+                activeThumbColor: AppTheme.brandOrange,
               ),
             ),
             showChevron: false,

@@ -77,35 +77,21 @@ class AlarmPlaybackService : Service() {
     private fun startAudio(sound: String) {
         stopAudioAndVibration()
 
-        val candidateUri = parseSoundUri(sound)
-        val fallbackUri =
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                ?: RingtoneManager.getDefaultUri(
-                    RingtoneManager.TYPE_NOTIFICATION,
-                )
+        val uri = parseSoundUri(sound)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+            ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
-        val urisToTry = listOfNotNull(candidateUri, fallbackUri).distinct()
-        for (uri in urisToTry) {
-            try {
-                mediaPlayer = MediaPlayer().apply {
-                    setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_ALARM)
-                            .setContentType(
-                                AudioAttributes.CONTENT_TYPE_SONIFICATION,
-                            )
-                            .build(),
-                    )
-                    isLooping = true
-                    setDataSource(this@AlarmPlaybackService, uri)
-                    prepare()
-                    start()
-                }
-                return
-            } catch (_: Exception) {
-                mediaPlayer?.release()
-                mediaPlayer = null
-            }
+        mediaPlayer = MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build(),
+            )
+            isLooping = true
+            setDataSource(this@AlarmPlaybackService, uri)
+            prepare()
+            start()
         }
     }
 

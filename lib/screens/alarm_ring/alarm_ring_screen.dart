@@ -51,7 +51,7 @@ class AlarmRingScreen extends ConsumerStatefulWidget {
 }
 
 class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
-  late final ClassifierService _classifier;
+  final ClassifierService _classifier = ClassifierService();
   final AudioService _audio = AudioService();
 
   final List<List<Offset>> _strokes = [];
@@ -77,7 +77,6 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   @override
   void initState() {
     super.initState();
-    _classifier = ref.read(classifierServiceProvider);
     _currentThreshold = widget.difficulty.threshold;
     _startTime = DateTime.now();
     _initAlarm();
@@ -85,6 +84,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
 
   Future<void> _initAlarm() async {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    await _classifier.load();
     _pickPrompt();
     setState(() => _isLoading = false);
     if (!widget.isTestMode && !widget.usesNativeAlarmAudio) {
@@ -102,6 +102,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
     if (exclude != null && pool.length > 1) {
       candidates = pool.where((String c) => c != exclude).toList();
     }
+    if (candidates.isEmpty) return;
     final String newPrompt = candidates[Random().nextInt(candidates.length)];
     setState(() => _prompt = newPrompt);
   }
@@ -328,14 +329,6 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
       scheduledTime: snoozeTime,
       payload: payload,
       sound: widget.sound,
-      hour: snoozeTime.hour,
-      minute: snoozeTime.minute,
-      repeatDays: const <int>[],
-      scheduledDate: DateTime(
-        snoozeTime.year,
-        snoozeTime.month,
-        snoozeTime.day,
-      ),
     );
 
     if (mounted) {
@@ -354,6 +347,7 @@ class _AlarmRingScreenState extends ConsumerState<AlarmRingScreen> {
   void dispose() {
     _idleTimer?.cancel();
     _audio.dispose();
+    _classifier.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }

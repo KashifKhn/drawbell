@@ -51,10 +51,6 @@ class NativeAlarmService {
     required DateTime scheduledTime,
     required String payload,
     required String sound,
-    required int hour,
-    required int minute,
-    required List<int> repeatDays,
-    required DateTime? scheduledDate,
   }) async {
     if (!Platform.isAndroid) {
       return;
@@ -66,10 +62,6 @@ class NativeAlarmService {
       'scheduledTimeMillis': scheduledTime.millisecondsSinceEpoch,
       'payload': payload,
       'sound': sound,
-      'hour': hour,
-      'minute': minute,
-      'repeatDays': repeatDays,
-      'scheduledDate': scheduledDate?.toIso8601String(),
     });
   }
 

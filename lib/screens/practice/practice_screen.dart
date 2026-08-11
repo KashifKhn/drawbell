@@ -1,11 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants.dart';
 import '../../models/drawing_result.dart';
-import '../../providers/alarm_provider.dart';
 import '../../services/classifier_service.dart';
 import '../../services/hint_service.dart';
 import '../../theme.dart';
@@ -15,20 +13,21 @@ import 'widgets/category_picker_sheet.dart';
 import 'widgets/practice_result_overlay.dart';
 import 'widgets/prediction_tile.dart';
 
-class PracticeScreen extends ConsumerStatefulWidget {
+class PracticeScreen extends StatefulWidget {
   const PracticeScreen({super.key});
 
   @override
-  ConsumerState<PracticeScreen> createState() => _PracticeScreenState();
+  State<PracticeScreen> createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends ConsumerState<PracticeScreen> {
-  late final ClassifierService _classifier;
+class _PracticeScreenState extends State<PracticeScreen> {
+  final ClassifierService _classifier = ClassifierService();
 
   final List<List<Offset>> _strokes = [];
   List<Offset> _currentStroke = [];
   List<DrawingResult> _predictions = [];
 
+  bool _isLoading = true;
   bool _isClassifying = false;
 
   String? _targetCategory;
@@ -46,7 +45,12 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   @override
   void initState() {
     super.initState();
-    _classifier = ref.read(classifierServiceProvider);
+    _initClassifier();
+  }
+
+  Future<void> _initClassifier() async {
+    await _classifier.load();
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _classify() async {
@@ -248,6 +252,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
 
   @override
   void dispose() {
+    _classifier.dispose();
     super.dispose();
   }
 
@@ -255,6 +260,27 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
+
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Practice')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(
+                'Loading AI model...',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

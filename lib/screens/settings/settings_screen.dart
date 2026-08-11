@@ -516,7 +516,7 @@ class _SwitchTile extends StatelessWidget {
             Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: AppTheme.brandOrange,
+              activeThumbColor: AppTheme.brandOrange,
             ),
           ],
         ),
